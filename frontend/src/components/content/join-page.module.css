@@ -1,0 +1,639 @@
+.page {
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.shell {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 36px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+/* ==========================================================================
+   1. HERO CONTAINER (SOFT BLUE GRADIENT)
+   ========================================================================== */
+.heroContainer {
+  background: #061b4d;
+  border-radius: 24px;
+  padding: 48px 56px 120px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.eyebrow {
+  color: #8eb7ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroLeft h1 {
+  font-size: clamp(34px, 4.2vw, 46px);
+  color: #ffffff;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.heroLead {
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 540px;
+}
+
+.heroRight {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.heroIllustration {
+  object-fit: contain;
+  object-position: center right;
+}
+
+/* ==========================================================================
+   2. MAIN APPLICATION FORM CARD (OVERLAID AT CENTER)
+   ========================================================================== */
+.formCard {
+  width: min(860px, 100%);
+  margin: -100px auto 0;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 48px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
+  z-index: 10;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 20px;
+}
+
+.formHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.formIconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.formTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.formTitleGroup h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.formTitleGroup p {
+  font-size: 13.5px;
+  color: #64748b;
+}
+
+.securityNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  max-width: 220px;
+}
+
+/* Google OAuth Button */
+.btnGoogleLogin {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+.btnGoogleLogin:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Form Fields */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.formFieldFull {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.textInput {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 0 14px;
+  font-size: 13.5px;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.textInputWithIcon {
+  padding-left: 42px;
+}
+.textInput:focus {
+  border-color: #1d4ed8;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+.textInputLocked {
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.selectInput {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 0 14px;
+  font-size: 13.5px;
+  color: #1e293b;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  transition: all 0.2s ease;
+}
+.selectInput:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+/* Actions */
+.formActions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.btnSubmitPrimary {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.25);
+}
+.btnSubmitPrimary:hover {
+  background: #1e40af;
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35);
+}
+.btnSubmitPrimary:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btnWhatsappDisabled {
+  width: 100%;
+  height: 46px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #94a3b8;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.btnWhatsappActive {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+}
+.btnWhatsappActive:hover {
+  background: #15803d;
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+}
+
+.legalNote {
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+/* Success Confirmation State */
+.successCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.successIconBox {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.successTitle {
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.successLead {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+/* Error State */
+.errorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.errorTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.errorDesc {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.btnRetry {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 10px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 13.5px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   3. PROCESS STEPS SECTION
+   ========================================================================== */
+.sectionHeaderCenter {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sectionHeaderCenter h2 {
+  font-size: clamp(26px, 3.2vw, 32px);
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.sectionHeaderCenter p {
+  color: #64748b;
+  font-size: 14.5px;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  position: relative;
+}
+
+.stepCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 20px 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  position: relative;
+}
+
+.stepBadge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 10px;
+  border-radius: 9999px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
+}
+
+.stepIconBox {
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.stepTitle {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stepDesc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   4. BOTTOM GRID (FAQ & AREAS)
+   ========================================================================== */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.panelCard {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.panelCard h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  background: #f8fafc;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.faqHeader {
+  width: 100%;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faqAnswer {
+  padding: 0 16px 14px;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.areaList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.areaItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.areaIconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.areaName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.panelFooterNote {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.panelLink {
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.panelLink:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .heroContainer {
+    grid-template-columns: 1fr;
+    padding-bottom: 80px;
+  }
+  .heroRight {
+    display: none;
+  }
+
+  .formCard {
+    margin-top: -60px;
+    padding: 28px 24px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formFieldFull {
+    grid-column: span 1;
+  }
+
+  .stepsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+}

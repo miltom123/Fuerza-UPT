@@ -1,0 +1,826 @@
+.page {
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.shell {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding: 40px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+
+/* ==========================================================================
+   1. HERO SECTION
+   ========================================================================== */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 44px;
+  align-items: center;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.eyebrow {
+  color: #e11d48;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: clamp(34px, 4.2vw, 48px);
+  color: #0f172a;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 9999px;
+  background-color: #1d4ed8;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.25);
+}
+.btnPrimary:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35);
+}
+
+.btnOutline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btnOutline:hover {
+  background-color: #eff6ff;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.heroRight {
+  position: relative;
+  width: 100%;
+}
+
+.heroImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.quoteCard {
+  position: absolute;
+  bottom: 24px;
+  right: -20px;
+  width: min(340px, 90%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+}
+
+.quoteIcon {
+  color: #1d4ed8;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.quoteText {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.quoteMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.quoteAuthor {
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.quoteRole {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.quoteDots {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background-color: #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.dotActive {
+  background-color: #1d4ed8;
+  width: 14px;
+}
+
+/* ==========================================================================
+   2. VOCES QUE CONSTRUYEN UNIVERSIDAD (TESTIMONIOS)
+   ========================================================================== */
+.sectionHeaderCenter {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionHeaderCenter h2 {
+  font-size: clamp(26px, 3.2vw, 34px);
+  color: #0f172a;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sectionHeaderCenter p {
+  color: #64748b;
+  font-size: 15px;
+}
+
+.carouselWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+.carouselArrow:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1d4ed8;
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.3);
+}
+
+.arrowLeft {
+  left: -22px;
+}
+
+.arrowRight {
+  right: -22px;
+}
+
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+.testimonialCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  transition: all 0.25s ease;
+}
+.testimonialCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+  border-color: #e2e8f0;
+}
+
+.badgePillBlue {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badgePillGreen {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarImage {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.authorStudy {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.testimonialText {
+  color: #334155;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.testimonialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+.testimonialLink:hover {
+  gap: 12px;
+}
+
+.centerAction {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.btnRoundedOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 28px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btnRoundedOutline:hover {
+  background: #eff6ff;
+  border-color: #1d4ed8;
+}
+
+/* ==========================================================================
+   3. INTERCAMBIOS QUE ABREN FRONTERAS
+   ========================================================================== */
+.exchangeCardContainer {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  border-radius: 28px;
+  padding: 48px 40px;
+  border: 1px solid #dbeafe;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.exchangeLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.exchangeBadgeIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.1);
+}
+
+.exchangeLeft h2 {
+  font-size: clamp(26px, 3.2vw, 34px);
+  color: #0f172a;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.exchangeLeft p {
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.exchangeFeatureList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.exchangeFeatureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.featureIconBox {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.featureText {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.featureText strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.exchangeRightCollage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 14px;
+  height: 360px;
+}
+
+.collageLeftPhoto {
+  position: relative;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.collageRightStack {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 14px;
+  height: 100%;
+}
+
+.collageRightPhoto {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================================================
+   4. NUESTRO IMPACTO EN CIFRAS
+   ========================================================================== */
+.statsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.statCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.03);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.statIconBox {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 30px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.statBadgeGreen {
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.statBadgeBlue {
+  font-size: 11px;
+  color: #1d4ed8;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Grid de 3 columnas inferiores */
+.bottomColumnsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.columnPanel {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.columnHeader h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.columnHeaderLink {
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.columnHeaderLink:hover {
+  text-decoration: underline;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.trackingItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.itemIconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.itemInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.itemTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.itemDate {
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.itemSummary {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: #1d4ed8;
+  border-radius: 9999px;
+}
+
+.resultBadgeGreen {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.docItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+.docItem:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.docPdfIcon {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.docInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.docTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.docFormat {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   5. CTA BANNER
+   ========================================================================== */
+.ctaBanner {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  border-radius: 24px;
+  padding: 36px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(29, 78, 216, 0.25);
+}
+
+.ctaLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ctaIconBox {
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ctaText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ctaText h3 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.ctaText p {
+  font-size: 14px;
+  color: #bfdbfe;
+}
+
+.ctaButtonWhite {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+.ctaButtonWhite:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .exchangeCardContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottomColumnsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonialsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quoteCard {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .ctaBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
