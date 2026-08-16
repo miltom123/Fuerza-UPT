@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { RepresentationHub } from "@/components/representation/representation-hub";
 import { getRepresentationItems } from "@/services/representation-service";
+import { getPublicStories } from "@/services/story-service";
 
 export const metadata: Metadata = {
   title: "Legado Fuerza UPT | Fuerza UPT",
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function StudentRepresentationPage() {
-  const items = await getRepresentationItems();
-  return <RepresentationHub items={items} />;
+  const [items, stories] = await Promise.all([
+    getRepresentationItems(),
+    getPublicStories(),
+  ]);
+
+  return <RepresentationHub items={items} stories={stories} />;
 }

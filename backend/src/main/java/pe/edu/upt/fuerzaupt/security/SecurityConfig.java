@@ -122,6 +122,7 @@ public class SecurityConfig {
                         "/api/auth/csrf",
                         "/api/public/**",
                         "/api/representacion/**",
+                        "/api/historias/**",
                         "/api/proyectos/**",
                         "/api/eventos/**",
                         "/api/oportunidades/**",

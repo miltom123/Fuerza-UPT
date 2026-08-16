@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Mail,
   Megaphone,
+  MessageSquareQuote,
   Settings,
   UserPlus,
   UsersRound,
@@ -14,6 +15,7 @@ export const adminNavigation = {
   content: [
     { label: "Inicio", href: "/administracion", icon: LayoutDashboard },
     { label: "Legado Fuerza UPT", href: "/administracion/representacion-estudiantil", icon: Megaphone },
+    { label: "Historias & Testimonios", href: "/administracion/historias", icon: MessageSquareQuote },
     { label: "Proyectos", href: "/administracion/proyectos", icon: FolderKanban },
     { label: "Eventos", href: "/administracion/eventos", icon: CalendarDays },
     { label: "Becas y oportunidades", href: "/administracion/becas-y-oportunidades", icon: GraduationCap },

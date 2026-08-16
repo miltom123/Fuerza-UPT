@@ -17,11 +17,13 @@ import {
   Users,
 } from "lucide-react";
 import type { RepresentationItem } from "@/types";
+import type { StoryPublicResponse } from "@/types/story";
 import { RepresentationDetailModal } from "./RepresentationDetailModal";
 import styles from "./representation-hub.module.css";
 
 interface RepresentationHubProps {
   items?: RepresentationItem[];
+  stories?: StoryPublicResponse[];
 }
 
 const DEFAULT_ITEMS: RepresentationItem[] = [
@@ -227,8 +229,9 @@ const DEFAULT_ITEMS: RepresentationItem[] = [
   },
 ];
 
-export function RepresentationHub({ items }: RepresentationHubProps) {
+export function RepresentationHub({ items, stories }: RepresentationHubProps) {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(0);
+  const [activeTestimonialPage, setActiveTestimonialPage] = useState(0);
 
   // Modal State for Expanded Full Detail and Catalog
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -291,7 +294,7 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
     setIsModalOpen(true);
   };
 
-  const quotes = [
+  const defaultQuotes = [
     {
       text: "Fuerza UPT escuchó nuestra necesidad de mejores espacios de estudio y hoy es una realidad para todos.",
       author: "Diego Alvarado",
@@ -308,6 +311,70 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
       role: "Estudiante de Derecho",
     },
   ];
+
+  // Dynamic Hero quotes
+  const quotes = useMemo(() => {
+    if (stories && stories.length > 0) {
+      const heroStories = stories.filter((s) => s.featuredInHero);
+      if (heroStories.length > 0) {
+        return heroStories.map((s) => ({
+          text: s.quote,
+          author: s.authorName,
+          role: s.authorCareer,
+        }));
+      }
+      return stories.slice(0, 3).map((s) => ({
+        text: s.quote,
+        author: s.authorName,
+        role: s.authorCareer,
+      }));
+    }
+    return defaultQuotes;
+  }, [stories]);
+
+  const defaultTestimonials = [
+    {
+      id: "1",
+      category: "Experiencia",
+      authorName: "Valeria Sánchez",
+      authorCareer: "Estudiante de Psicología",
+      imageUrl: "/images/valeria-sanchez.png",
+      quote: "Gracias al seguimiento de Fuerza UPT, se logró implementar talleres gratuitos de salud mental. Hoy más estudiantes tienen acceso a apoyo profesional.",
+    },
+    {
+      id: "2",
+      category: "Liderazgo",
+      authorName: "José Rojas",
+      authorCareer: "Estudiante de Ing. Civil",
+      imageUrl: "/images/jose-rojas.png",
+      quote: "Participar en las mesas de diálogo nos permitió plantear mejoras concretas para los laboratorios. La representación estudiantil realmente funciona.",
+    },
+    {
+      id: "3",
+      category: "Comunidad",
+      authorName: "Andrea Flores",
+      authorCareer: "Estudiante de Medicina",
+      imageUrl: "/images/andrea-flores.png",
+      quote: "El apoyo durante el proceso de matrícula y becas fue clave para muchos compañeros. Saber que no estás solo marca la diferencia.",
+    },
+  ];
+
+  // Display Testimonials
+  const displayStories = useMemo(() => {
+    if (stories && stories.length > 0) {
+      return stories.map((s) => ({
+        id: s.id,
+        category: s.category || "Experiencia",
+        authorName: s.authorName,
+        authorCareer: s.authorCareer,
+        imageUrl: s.imageUrl || "/images/valeria-sanchez.png",
+        quote: s.quote,
+      }));
+    }
+    return defaultTestimonials;
+  }, [stories]);
+
+  const safeQuoteIndex = activeQuoteIndex % (quotes.length || 1);
 
   return (
     <div className={styles.page}>
@@ -354,16 +421,16 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
 
             <div className={styles.quoteCard}>
               <span className={styles.quoteIcon}>“</span>
-              <p className={styles.quoteText}>{quotes[activeQuoteIndex].text}</p>
+              <p className={styles.quoteText}>{quotes[safeQuoteIndex]?.text || defaultQuotes[0].text}</p>
               <div className={styles.quoteMeta}>
-                <span className={styles.quoteAuthor}>— {quotes[activeQuoteIndex].author}</span>
-                <span className={styles.quoteRole}>{quotes[activeQuoteIndex].role}</span>
+                <span className={styles.quoteAuthor}>— {quotes[safeQuoteIndex]?.author || defaultQuotes[0].author}</span>
+                <span className={styles.quoteRole}>{quotes[safeQuoteIndex]?.role || defaultQuotes[0].role}</span>
               </div>
               <div className={styles.quoteDots}>
                 {quotes.map((_, idx) => (
                   <span
                     key={idx}
-                    className={`${styles.dot} ${idx === activeQuoteIndex ? styles.dotActive : ""}`}
+                    className={`${styles.dot} ${idx === safeQuoteIndex ? styles.dotActive : ""}`}
                     onClick={() => setActiveQuoteIndex(idx)}
                     style={{ cursor: "pointer" }}
                   />
@@ -383,100 +450,61 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
           </div>
 
           <div className={styles.carouselWrapper}>
-            <button className={`${styles.carouselArrow} ${styles.arrowLeft}`} aria-label="Testimonio anterior">
+            <button
+              className={`${styles.carouselArrow} ${styles.arrowLeft}`}
+              aria-label="Testimonio anterior"
+              onClick={() =>
+                setActiveTestimonialPage((prev) =>
+                  prev > 0 ? prev - 1 : Math.max(0, Math.ceil(displayStories.length / 3) - 1)
+                )
+              }
+            >
               <ChevronLeft size={20} />
             </button>
 
             <div className={styles.testimonialsGrid}>
-              {/* Card 1 */}
-              <article className={styles.testimonialCard}>
-                <span className={styles.badgePillBlue}>Experiencia</span>
-                <div className={styles.authorRow}>
-                  <Image
-                    src="/images/valeria-sanchez.png"
-                    alt="Retrato de Valeria Sánchez"
-                    width={48}
-                    height={48}
-                    className={styles.avatarImage}
-                  />
-                  <div className={styles.authorInfo}>
-                    <span className={styles.authorName}>Valeria Sánchez</span>
-                    <span className={styles.authorStudy}>Estudiante de Psicología</span>
-                  </div>
-                </div>
-                <p className={styles.testimonialText}>
-                  "Gracias al seguimiento de Fuerza UPT, se logró implementar talleres gratuitos de salud mental. Hoy más estudiantes tienen acceso a apoyo profesional."
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openExpandedView("LOGROS")}
-                  className={styles.testimonialLink}
-                >
-                  <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver detalle completo
-                </button>
-              </article>
-
-              {/* Card 2 */}
-              <article className={styles.testimonialCard}>
-                <span className={styles.badgePillBlue}>Liderazgo</span>
-                <div className={styles.authorRow}>
-                  <Image
-                    src="/images/jose-rojas.png"
-                    alt="Retrato de José Rojas"
-                    width={48}
-                    height={48}
-                    className={styles.avatarImage}
-                  />
-                  <div className={styles.authorInfo}>
-                    <span className={styles.authorName}>José Rojas</span>
-                    <span className={styles.authorStudy}>Estudiante de Ing. Civil</span>
-                  </div>
-                </div>
-                <p className={styles.testimonialText}>
-                  "Participar en las mesas de diálogo nos permitió plantear mejoras concretas para los laboratorios. La representación estudiantil realmente funciona."
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openExpandedView("LOGROS")}
-                  className={styles.testimonialLink}
-                >
-                  <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver detalle completo
-                </button>
-              </article>
-
-              {/* Card 3 */}
-              <article className={styles.testimonialCard}>
-                <span className={styles.badgePillBlue}>Comunidad</span>
-                <div className={styles.authorRow}>
-                  <Image
-                    src="/images/andrea-flores.png"
-                    alt="Retrato de Andrea Flores"
-                    width={48}
-                    height={48}
-                    className={styles.avatarImage}
-                  />
-                  <div className={styles.authorInfo}>
-                    <span className={styles.authorName}>Andrea Flores</span>
-                    <span className={styles.authorStudy}>Estudiante de Medicina</span>
-                  </div>
-                </div>
-                <p className={styles.testimonialText}>
-                  "El apoyo durante el proceso de matrícula y becas fue clave para muchos compañeros. Saber que no estás solo marca la diferencia."
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openExpandedView("LOGROS")}
-                  className={styles.testimonialLink}
-                >
-                  <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver detalle completo
-                </button>
-              </article>
+              {displayStories
+                .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
+                .map((t) => (
+                  <article key={t.id} className={styles.testimonialCard}>
+                    <span className={styles.badgePillBlue}>{t.category}</span>
+                    <div className={styles.authorRow}>
+                      <div className="relative size-12 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
+                        {t.imageUrl ? (
+                          <img
+                            src={t.imageUrl}
+                            alt={t.authorName}
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                            {t.authorName.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.authorInfo}>
+                        <span className={styles.authorName}>{t.authorName}</span>
+                        <span className={styles.authorStudy}>{t.authorCareer}</span>
+                      </div>
+                    </div>
+                    <p className={styles.testimonialText}>"{t.quote}"</p>
+                    <Link href="/testimonios" className={styles.testimonialLink}>
+                      <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
+                      Ver detalle completo
+                    </Link>
+                  </article>
+                ))}
             </div>
 
-            <button className={`${styles.carouselArrow} ${styles.arrowRight}`} aria-label="Testimonio siguiente">
+            <button
+              className={`${styles.carouselArrow} ${styles.arrowRight}`}
+              aria-label="Testimonio siguiente"
+              onClick={() =>
+                setActiveTestimonialPage((prev) =>
+                  (prev + 1) * 3 < displayStories.length ? prev + 1 : 0
+                )
+              }
+            >
               <ChevronRight size={20} />
             </button>
           </div>

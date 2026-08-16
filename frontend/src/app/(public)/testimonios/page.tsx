@@ -1,21 +1,23 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, Play, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, Play, User, X } from "lucide-react";
+import { getPublicStories } from "@/services/story-service";
+import type { StoryPublicResponse } from "@/types/story";
 
 interface Testimonial {
   id: string;
   name: string;
   career: string;
-  category: "Experiencia" | "Intercambio estudiantil" | "Beca" | "Proyecto";
+  category: string;
   date: string;
   quote: string;
   fullStory: string;
   image: string;
 }
 
-const testimonialsData: Testimonial[] = [
+const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
     name: "Valeria Sánchez",
@@ -95,12 +97,39 @@ export default function TestimoniosPage() {
   const [sortOrder, setSortOrder] = useState<string>("Más recientes");
   const [activeModalItem, setActiveModalItem] = useState<Testimonial | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [backendStories, setBackendStories] = useState<StoryPublicResponse[]>([]);
+
+  useEffect(() => {
+    getPublicStories(undefined, 50).then((data) => {
+      if (data && data.length > 0) {
+        setBackendStories(data);
+      }
+    });
+  }, []);
+
+  const testimonialsData = useMemo(() => {
+    if (backendStories.length > 0) {
+      return backendStories.map((s) => ({
+        id: s.id,
+        name: s.authorName,
+        career: s.authorCareer,
+        category: s.category || "Experiencia",
+        date: s.publishedAt ? new Date(s.publishedAt).toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }) : "Reciente",
+        quote: s.quote,
+        fullStory: s.fullStory || s.quote,
+        image: s.imageUrl || "/images/valeria-sanchez.png",
+      }));
+    }
+    return DEFAULT_TESTIMONIALS;
+  }, [backendStories]);
 
   // Filter items by category
-  const filteredTestimonials = testimonialsData.filter((item) => {
-    if (selectedCategory === "Todas las categorías") return true;
-    return item.category === selectedCategory;
-  });
+  const filteredTestimonials = useMemo(() => {
+    return testimonialsData.filter((item) => {
+      if (selectedCategory === "Todas las categorías") return true;
+      return item.category === selectedCategory;
+    });
+  }, [testimonialsData, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-slate-50/60 pb-20 pt-8">
@@ -130,6 +159,8 @@ export default function TestimoniosPage() {
               >
                 <option value="Todas las categorías">Todas las categorías</option>
                 <option value="Experiencia">Experiencia</option>
+                <option value="Liderazgo">Liderazgo</option>
+                <option value="Comunidad">Comunidad</option>
                 <option value="Intercambio estudiantil">Intercambio estudiantil</option>
                 <option value="Beca">Beca</option>
                 <option value="Proyecto">Proyecto</option>
@@ -183,14 +214,18 @@ export default function TestimoniosPage() {
 
                   {/* Author Header */}
                   <div className="mt-5 flex items-center gap-3.5">
-                    <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="44px"
-                      />
+                    <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0 bg-slate-100">
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                          {item.name.charAt(0)}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <h2 className="text-sm font-bold text-slate-900 group-hover:text-fuerza-blue transition-colors">
@@ -212,7 +247,7 @@ export default function TestimoniosPage() {
                   <button
                     type="button"
                     onClick={() => setActiveModalItem(item)}
-                    className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-0.5"
+                    className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-0.5 cursor-pointer"
                   >
                     <span>Ver más</span>
                     <Play className="size-2.5 fill-blue-600 text-blue-600" />
@@ -223,108 +258,70 @@ export default function TestimoniosPage() {
           })}
         </div>
 
-        {/* PAGINATION CONTROLS */}
-        <div className="mt-12 flex items-center justify-center gap-2">
-          <button
-            type="button"
-            className="flex size-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200/60 hover:text-slate-700"
-            aria-label="Página anterior"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-
-          {[1, 2, 3].map((page) => (
-            <button
-              key={page}
-              type="button"
-              onClick={() => setCurrentPage(page)}
-              className={`flex size-8 items-center justify-center rounded-full text-xs font-bold transition ${
-                currentPage === page
-                  ? "bg-fuerza-blue text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-200/60"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          <span className="px-1 text-xs text-slate-400 font-bold">...</span>
-
-          <button
-            type="button"
-            onClick={() => setCurrentPage(8)}
-            className={`flex size-8 items-center justify-center rounded-full text-xs font-bold transition ${
-              currentPage === 8
-                ? "bg-fuerza-blue text-white shadow-xs"
-                : "text-slate-600 hover:bg-slate-200/60"
-            }`}
-          >
-            8
-          </button>
-
-          <button
-            type="button"
-            className="flex size-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200/60 hover:text-slate-700"
-            aria-label="Página siguiente"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* MODAL DIALOG DETAIL */}
-      {activeModalItem ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-2xl sm:p-8">
-            <button
-              type="button"
-              onClick={() => setActiveModalItem(null)}
-              className="absolute right-5 top-5 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"
-              aria-label="Cerrar"
-            >
-              <X className="size-4" />
-            </button>
-
-            <span className="inline-block rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-fuerza-blue">
-              {activeModalItem.category}
-            </span>
-
-            <div className="mt-5 flex items-center gap-4">
-              <div className="relative size-14 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0">
-                <Image
-                  src={activeModalItem.image}
-                  alt={activeModalItem.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-fuerza-navy">{activeModalItem.name}</h3>
-                <p className="text-xs text-slate-500">{activeModalItem.career}</p>
-                <time className="mt-0.5 block text-[11px] font-medium text-slate-400">
-                  {activeModalItem.date}
-                </time>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-slate-50 p-5 border border-slate-100">
-              <p className="text-xs sm:text-sm font-normal leading-relaxed text-slate-700 italic">
-                {activeModalItem.fullStory}
-              </p>
-            </div>
-
-            <div className="mt-6 text-right">
+        {/* MODAL DETALLE DE TESTIMONIO */}
+        {activeModalItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
               <button
                 type="button"
                 onClick={() => setActiveModalItem(null)}
-                className="rounded-xl bg-fuerza-blue px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700"
+                className="absolute right-5 top-5 rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
               >
-                Cerrar historia
+                <X className="size-5" />
               </button>
+
+              <div className="flex items-center gap-4">
+                <div className="relative size-16 overflow-hidden rounded-full border-2 border-slate-100 shadow-sm shrink-0 bg-slate-100">
+                  {activeModalItem.image ? (
+                    <img
+                      src={activeModalItem.image}
+                      alt={activeModalItem.name}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold text-lg">
+                      {activeModalItem.name.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <span className="inline-block rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                    {activeModalItem.category}
+                  </span>
+                  <h3 className="mt-1 text-lg font-bold text-slate-900">{activeModalItem.name}</h3>
+                  <p className="text-xs text-slate-500">{activeModalItem.career}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-blue-50/50 p-4 border border-blue-100/60">
+                <p className="text-sm font-medium italic text-slate-700">
+                  "{activeModalItem.quote}"
+                </p>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Historia completa
+                </h4>
+                <p className="text-xs leading-relaxed text-slate-600 sm:text-sm">
+                  {activeModalItem.fullStory}
+                </p>
+              </div>
+
+              <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-400">
+                <span>Publicado el {activeModalItem.date}</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalItem(null)}
+                  className="rounded-xl bg-slate-900 px-4 py-2 font-bold text-white transition hover:bg-slate-800"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        )}
+      </div>
     </div>
   );
 }

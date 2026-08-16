@@ -113,6 +113,25 @@ CREATE TABLE IF NOT EXISTS representation_actions (
     display_order INT NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS stories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug VARCHAR(180) NOT NULL UNIQUE,
+    author_name VARCHAR(180) NOT NULL,
+    author_career VARCHAR(180) NOT NULL,
+    category VARCHAR(100) NOT NULL DEFAULT 'Experiencia',
+    quote TEXT NOT NULL,
+    full_story TEXT,
+    image_url TEXT,
+    video_url TEXT,
+    featured_in_hero BOOLEAN NOT NULL DEFAULT FALSE,
+    content_status VARCHAR(30) NOT NULL DEFAULT 'DRAFT',
+    display_order INT NOT NULL DEFAULT 0,
+    published_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    version BIGINT NOT NULL DEFAULT 0
+);
+
 -- 4. PROYECTOS
 CREATE TABLE IF NOT EXISTS projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
