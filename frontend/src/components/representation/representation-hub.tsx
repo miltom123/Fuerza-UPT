@@ -333,41 +333,20 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
           role: s.authorCareer,
         }));
       }
-      return stories.slice(0, 3).map((s) => ({
+      return stories.map((s) => ({
         text: s.quote,
         author: s.authorName,
         role: s.authorCareer,
       }));
     }
-    return defaultQuotes;
+    return [
+      {
+        text: "La transparencia y la representación estudiantil activa transforman la universidad.",
+        author: "Fuerza UPT",
+        role: "Comunidad Estudiantil",
+      },
+    ];
   }, [stories]);
-
-  const defaultTestimonials = [
-    {
-      id: "1",
-      category: "Experiencia",
-      authorName: "Valeria Sánchez",
-      authorCareer: "Estudiante de Psicología",
-      imageUrl: "/images/valeria-sanchez.png",
-      quote: "Gracias al seguimiento de Fuerza UPT, se logró implementar talleres gratuitos de salud mental. Hoy más estudiantes tienen acceso a apoyo profesional.",
-    },
-    {
-      id: "2",
-      category: "Liderazgo",
-      authorName: "José Rojas",
-      authorCareer: "Estudiante de Ing. Civil",
-      imageUrl: "/images/jose-rojas.png",
-      quote: "Participar en las mesas de diálogo nos permitió plantear mejoras concretas para los laboratorios. La representación estudiantil realmente funciona.",
-    },
-    {
-      id: "3",
-      category: "Comunidad",
-      authorName: "Andrea Flores",
-      authorCareer: "Estudiante de Medicina",
-      imageUrl: "/images/andrea-flores.png",
-      quote: "El apoyo durante el proceso de matrícula y becas fue clave para muchos compañeros. Saber que no estás solo marca la diferencia.",
-    },
-  ];
 
   // Display Testimonials
   const displayStories = useMemo(() => {
@@ -381,7 +360,7 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
         quote: s.quote,
       }));
     }
-    return defaultTestimonials;
+    return [];
   }, [stories]);
 
   // Automatic rotation every 10 seconds
@@ -519,101 +498,116 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
           </Reveal>
 
           <div className={styles.carouselWrapper}>
-            <button
-              className={`${styles.carouselArrow} ${styles.arrowLeft} transition-transform duration-200 hover:scale-110 active:scale-95`}
-              aria-label="Testimonio anterior"
-              onClick={() =>
-                setActiveTestimonialPage((prev) =>
-                  prev > 0 ? prev - 1 : Math.max(0, Math.ceil(displayStories.length / 3) - 1)
-                )
-              }
-            >
-              <ChevronLeft size={20} />
-            </button>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonialPage}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className={styles.testimonialsGrid}
+            {displayStories.length > 3 && (
+              <button
+                className={`${styles.carouselArrow} ${styles.arrowLeft} transition-transform duration-200 hover:scale-110 active:scale-95`}
+                aria-label="Testimonio anterior"
+                onClick={() =>
+                  setActiveTestimonialPage((prev) =>
+                    prev > 0 ? prev - 1 : Math.max(0, Math.ceil(displayStories.length / 3) - 1)
+                  )
+                }
               >
-                {displayStories
-                  .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
-                  .map((t, idx) => {
-                    const isExp = t.category === "Experiencia" || t.category === "Beca";
-                    const isLid = t.category === "Liderazgo" || t.category === "Proyecto";
+                <ChevronLeft size={20} />
+              </button>
+            )}
 
-                    const iconClass = isExp ? styles.iconHeart : isLid ? styles.iconStar : styles.iconUsers;
-                    const badgeClass = isExp ? styles.badgePillRed : isLid ? styles.badgePillBlue : styles.badgePillGreen;
-                    const linkClass = isExp ? styles.linkRed : isLid ? styles.linkBlue : styles.linkGreen;
+            {displayStories.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 bg-white/80 rounded-3xl border border-slate-200 text-center w-full max-w-lg mx-auto shadow-sm">
+                <Users className="size-8 text-fuerza-blue mb-2" />
+                <p className="text-sm font-bold text-slate-800">Pronto más testimonios de la comunidad</p>
+                <p className="text-xs text-slate-500 mt-1">Conoce las experiencias y aportes de estudiantes de todas las facultades.</p>
+                <Link href="/contacto" className="mt-4 px-4 py-2 bg-fuerza-blue text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-xs">
+                  Participar o enviar propuesta
+                </Link>
+              </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTestimonialPage}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className={styles.testimonialsGrid}
+                >
+                  {displayStories
+                    .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
+                    .map((t, idx) => {
+                      const isExp = t.category === "Experiencia" || t.category === "Beca";
+                      const isLid = t.category === "Liderazgo" || t.category === "Proyecto";
 
-                    return (
-                      <article
-                        key={t.id || idx}
-                        className={`${styles.testimonialCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
-                      >
-                        <div className={`${styles.cardTopIcon} ${iconClass} transition-transform duration-200 group-hover:scale-110`}>
-                          {isExp ? (
-                            <Heart className="size-5 fill-white stroke-none" />
-                          ) : isLid ? (
-                            <Star className="size-5 fill-white stroke-none" />
-                          ) : (
-                            <Users className="size-5" />
-                          )}
-                        </div>
+                      const iconClass = isExp ? styles.iconHeart : isLid ? styles.iconStar : styles.iconUsers;
+                      const badgeClass = isExp ? styles.badgePillRed : isLid ? styles.badgePillBlue : styles.badgePillGreen;
+                      const linkClass = isExp ? styles.linkRed : isLid ? styles.linkBlue : styles.linkGreen;
 
-                        <div className={styles.cardTopRow}>
-                          <span className={badgeClass}>{t.category}</span>
-                        </div>
-
-                        <div className={styles.authorRow}>
-                          <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0 transition-transform duration-300 group-hover:scale-105">
-                            {t.imageUrl ? (
-                              <img
-                                src={t.imageUrl}
-                                alt={t.authorName}
-                                className="size-full object-cover"
-                              />
+                      return (
+                        <article
+                          key={t.id || idx}
+                          className={`${styles.testimonialCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
+                        >
+                          <div className={`${styles.cardTopIcon} ${iconClass} transition-transform duration-200 group-hover:scale-110`}>
+                            {isExp ? (
+                              <Heart className="size-5 fill-white stroke-none" />
+                            ) : isLid ? (
+                              <Star className="size-5 fill-white stroke-none" />
                             ) : (
-                              <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
-                                {t.authorName.charAt(0)}
-                              </div>
+                              <Users className="size-5" />
                             )}
                           </div>
-                          <div className={styles.authorInfo}>
-                            <span className={styles.authorName}>{t.authorName}</span>
-                            <span className={styles.authorStudy}>{t.authorCareer}</span>
+
+                          <div className={styles.cardTopRow}>
+                            <span className={badgeClass}>{t.category}</span>
                           </div>
-                        </div>
 
-                        <p className={styles.testimonialText}>"{t.quote}"</p>
+                          <div className={styles.authorRow}>
+                            <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                              {t.imageUrl ? (
+                                <img
+                                  src={t.imageUrl}
+                                  alt={t.authorName}
+                                  className="size-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                                  {t.authorName.charAt(0)}
+                                </div>
+                              )}
+                            </div>
+                            <div className={styles.authorInfo}>
+                              <span className={styles.authorName}>{t.authorName}</span>
+                              <span className={styles.authorStudy}>{t.authorCareer}</span>
+                            </div>
+                          </div>
 
-                        <div className="pt-2 border-t border-slate-100/60">
-                          <Link href="/testimonios" className={`${styles.testimonialLink} ${linkClass} group/link`}>
-                            <span>Ver detalle completo</span>
-                            <ArrowRight size={14} className="transition-transform duration-200 group-hover/link:translate-x-1" />
-                          </Link>
-                        </div>
-                      </article>
-                    );
-                  })}
-              </motion.div>
-            </AnimatePresence>
+                          <p className={styles.testimonialText}>"{t.quote}"</p>
 
-            <button
-              className={`${styles.carouselArrow} ${styles.arrowRight} transition-transform duration-200 hover:scale-110 active:scale-95`}
-              aria-label="Testimonio siguiente"
-              onClick={() =>
-                setActiveTestimonialPage((prev) =>
-                  (prev + 1) * 3 < displayStories.length ? prev + 1 : 0
-                )
-              }
-            >
-              <ChevronRight size={20} />
-            </button>
+                          <div className="pt-2 border-t border-slate-100/60">
+                            <Link href="/testimonios" className={`${styles.testimonialLink} ${linkClass} group/link`}>
+                              <span>Ver detalle completo</span>
+                              <ArrowRight size={14} className="transition-transform duration-200 group-hover/link:translate-x-1" />
+                            </Link>
+                          </div>
+                        </article>
+                      );
+                    })}
+                </motion.div>
+              </AnimatePresence>
+            )}
+
+            {displayStories.length > 3 && (
+              <button
+                className={`${styles.carouselArrow} ${styles.arrowRight} transition-transform duration-200 hover:scale-110 active:scale-95`}
+                aria-label="Testimonio siguiente"
+                onClick={() =>
+                  setActiveTestimonialPage((prev) =>
+                    (prev + 1) * 3 < displayStories.length ? prev + 1 : 0
+                  )
+                }
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
           </div>
 
           <div className={styles.centerLinkWrap}>

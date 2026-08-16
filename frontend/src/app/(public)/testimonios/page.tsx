@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, Play, User, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, MessageSquareQuote, Play, Plus, User, X } from "lucide-react";
 import { getPublicStories } from "@/services/story-service";
 import type { StoryPublicResponse } from "@/types/story";
+import { FadeIn, Reveal, StaggerContainer, StaggerItem } from "@/components/motion";
+import { motion, AnimatePresence } from "motion/react";
 
 interface Testimonial {
   id: string;
@@ -17,122 +20,63 @@ interface Testimonial {
   image: string;
 }
 
-const DEFAULT_TESTIMONIALS: Testimonial[] = [
-  {
-    id: "1",
-    name: "Valeria Sánchez",
-    career: "Estudiante de Psicología",
-    category: "Experiencia",
-    date: "10 de mayo, 2026",
-    quote:
-      '"Gracias al seguimiento de Fuerza UPT, se logró implementar talleres gratuitos de salud mental. Hoy más estudiantes tienen acceso a apoyo profesional."',
-    fullStory:
-      "Gracias al seguimiento constante del equipo de Fuerza UPT, nuestra facultad logró implementar talleres gratuitos de salud mental y bienestar emocional. La iniciativa permitió que decenas de estudiantes tuvieran orientación psicológica accesible y acompañamiento profesional continuo en la universidad.",
-    image: "/images/valeria-sanchez.png",
-  },
-  {
-    id: "2",
-    name: "José Miguel Rojas",
-    career: "Estudiante de Ingeniería de Sistemas",
-    category: "Intercambio estudiantil",
-    date: "8 de mayo, 2026",
-    quote:
-      '"Mi intercambio en México fue posible gracias a la información y acompañamiento de Fuerza UPT. Una experiencia que cambió mi visión del mundo."',
-    fullStory:
-      "Mi experiencia de intercambio estudiantil en México fue posible gracias al acompañamiento, la difusión oportuna de convocatorias y la guía en trámites que me brindó Fuerza UPT. Vivir esta experiencia internacional potenció mis habilidades profesionales y transformó mi perspectiva sobre el desarrollo académico.",
-    image: "/images/jose-rojas.png",
-  },
-  {
-    id: "3",
-    name: "Andrea Flores",
-    career: "Estudiante de Arquitectura",
-    category: "Experiencia",
-    date: "5 de mayo, 2026",
-    quote:
-      '"Participar en las decisiones de la universidad me hizo sentir que mi voz importa. Fuerza UPT nos representa y trabaja por nosotros."',
-    fullStory:
-      "Representar los intereses estudiantiles y participar activamente en mesas de diálogo institucionales me enseñó el valor de la voz estudiantil. Fuerza UPT demostró ser un puente real y efectivo para escuchar las necesidades de los alumnos y canalizarlas hacia soluciones concretas.",
-    image: "/images/andrea-flores.png",
-  },
-  {
-    id: "4",
-    name: "Luis Fernando Díaz",
-    career: "Estudiante de Ingeniería Civil",
-    category: "Beca",
-    date: "3 de mayo, 2026",
-    quote:
-      '"La orientación sobre becas me permitió postular a una oportunidad que antes no conocía. Hoy puedo seguir creciendo académicamente."',
-    fullStory:
-      "Recibir información clara y asesoría personalizada sobre becas académicas de Fuerza UPT fue determinante para postular a una beca de apoyo estudiantil. Gracias a esta oportunidad, continúo mi formación universitaria enfocado plenamente en mi rendimiento académico.",
-    image: "/images/hero-student.png",
-  },
-  {
-    id: "5",
-    name: "María Fernanda Soto",
-    career: "Estudiante de Administración",
-    category: "Proyecto",
-    date: "1 de mayo, 2026",
-    quote:
-      '"Gracias al impulso de Fuerza UPT, nuestro proyecto estudiantil logró obtener financiamiento y generar un impacto real en la comunidad."',
-    fullStory:
-      "Con el respaldo y financiamiento gestionado a través de los concursos de proyectos estudiantiles impulsados por Fuerza UPT, pudimos ejecutar nuestro programa de voluntariado y apoyo comunitario, beneficiando directamente a familias de la región Tacna.",
-    image: "/images/presidenta.jpg",
-  },
-  {
-    id: "6",
-    name: "Carlos Ramírez",
-    career: "Estudiante de Derecho",
-    category: "Experiencia",
-    date: "28 de abril, 2026",
-    quote:
-      '"Fuerza UPT siempre está escuchando las necesidades reales de los estudiantes y buscando soluciones concretas."',
-    fullStory:
-      "La transparencia, disposición de escucha y proactividad de la lista estudiantil Fuerza UPT marcan una diferencia clara. Desde la mejora de infraestructura digital hasta el apoyo en eventos académicos, siempre están proponiendo medidas útiles para la comunidad.",
-    image: "/images/fuerza-upt-equipo.jpg",
-  },
-];
-
-import { FadeIn, Reveal, StaggerContainer, StaggerItem } from "@/components/motion";
-import { motion, AnimatePresence } from "motion/react";
-
 export default function TestimoniosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas las categorías");
   const [sortOrder, setSortOrder] = useState<string>("Más recientes");
   const [activeModalItem, setActiveModalItem] = useState<Testimonial | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [backendStories, setBackendStories] = useState<StoryPublicResponse[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getPublicStories(undefined, 50).then((data) => {
-      if (data && data.length > 0) {
-        setBackendStories(data);
-      }
-    });
+    setIsLoading(true);
+    getPublicStories(undefined, 100)
+      .then((data) => {
+        setBackendStories(data || []);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const testimonialsData = useMemo(() => {
-    if (backendStories.length > 0) {
-      return backendStories.map((s) => ({
-        id: s.id,
-        name: s.authorName,
-        career: s.authorCareer,
-        category: s.category || "Experiencia",
-        date: s.publishedAt ? new Date(s.publishedAt).toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }) : "Reciente",
-        quote: s.quote,
-        fullStory: s.fullStory || s.quote,
-        image: s.imageUrl || "/images/valeria-sanchez.png",
-      }));
-    }
-    return DEFAULT_TESTIMONIALS;
+    return backendStories.map((s) => ({
+      id: s.id,
+      name: s.authorName,
+      career: s.authorCareer,
+      category: s.category || "Experiencia",
+      date: s.publishedAt
+        ? new Date(s.publishedAt).toLocaleDateString("es-PE", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        : "Reciente",
+      quote: s.quote,
+      fullStory: s.fullStory || s.quote,
+      image: s.imageUrl || "/images/valeria-sanchez.png",
+    }));
   }, [backendStories]);
 
   // Filter items by category
   const filteredTestimonials = useMemo(() => {
-    return testimonialsData.filter((item) => {
-      if (selectedCategory === "Todas las categorías") return true;
-      return item.category === selectedCategory;
+    const list = testimonialsData.filter((item) => {
+      if (
+        selectedCategory === "Todas las categorías" ||
+        selectedCategory === "Todas las categorias" ||
+        selectedCategory === "ALL"
+      ) {
+        return true;
+      }
+      return (
+        item.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase()
+      );
     });
-  }, [testimonialsData, selectedCategory]);
+
+    if (sortOrder === "Más antiguos") {
+      return [...list].reverse();
+    }
+    return list;
+  }, [testimonialsData, selectedCategory, sortOrder]);
 
   return (
     <div className="min-h-screen bg-slate-50/60 pb-20 pt-8">
@@ -142,7 +86,7 @@ export default function TestimoniosPage() {
           <div>
             <FadeIn delay={0.05} direction="up" distance={12}>
               <span className="text-xs font-bold uppercase tracking-wider text-rose-500">
-                TESTIMONIOS
+                TESTIMONIOS & VOCES
               </span>
             </FadeIn>
             <FadeIn delay={0.12} direction="up" distance={16}>
@@ -192,81 +136,114 @@ export default function TestimoniosPage() {
           </FadeIn>
         </div>
 
-        {/* TESTIMONIAL CARDS GRID */}
-        <StaggerContainer className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
-          {filteredTestimonials.map((item) => {
-            const isBlue = item.category === "Experiencia";
-            const isGreen = item.category === "Intercambio estudiantil";
-            const isSky = item.category === "Beca";
-            const isPurple = item.category === "Proyecto";
+        {/* LOADING STATE */}
+        {isLoading ? (
+          <div className="mt-16 flex flex-col items-center justify-center py-12 text-center">
+            <div className="size-10 animate-spin rounded-full border-3 border-fuerza-blue border-t-transparent" />
+            <p className="mt-4 text-xs font-bold text-slate-500">Cargando testimonios de la comunidad...</p>
+          </div>
+        ) : filteredTestimonials.length === 0 ? (
+          /* EMPTY STATE */
+          <div className="mt-12 rounded-3xl border border-slate-200/80 bg-white p-12 text-center shadow-xs">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-fuerza-blue">
+              <MessageSquareQuote className="size-7" />
+            </div>
+            <h3 className="mt-4 text-base font-extrabold text-slate-900">
+              No hay testimonios disponibles en esta categoría
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 max-w-md mx-auto">
+              {selectedCategory !== "Todas las categorías"
+                ? `Actualmente no hay testimonios publicados en la categoría "${selectedCategory}".`
+                : "Aún no se han publicado testimonios en la plataforma."}
+            </p>
+            {selectedCategory !== "Todas las categorías" && (
+              <button
+                type="button"
+                onClick={() => setSelectedCategory("Todas las categorías")}
+                className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-fuerza-blue px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition"
+              >
+                Ver todos los testimonios
+              </button>
+            )}
+          </div>
+        ) : (
+          /* TESTIMONIAL CARDS GRID */
+          <StaggerContainer className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
+            {filteredTestimonials.map((item) => {
+              const cat = item.category?.toLowerCase() || "";
+              const isBlue = cat.includes("experiencia");
+              const isGreen = cat.includes("intercambio") || cat.includes("comunidad");
+              const isSky = cat.includes("beca");
+              const isPurple = cat.includes("liderazgo") || cat.includes("proyecto");
 
-            const badgeStyle = isBlue
-              ? "bg-blue-50 text-blue-700 border-blue-100"
-              : isGreen
-              ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-              : isSky
-              ? "bg-sky-50 text-sky-700 border-sky-100"
-              : "bg-purple-50 text-purple-700 border-purple-100";
+              const badgeStyle = isBlue
+                ? "bg-blue-50 text-blue-700 border-blue-100"
+                : isGreen
+                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                : isSky
+                ? "bg-sky-50 text-sky-700 border-sky-100"
+                : "bg-purple-50 text-purple-700 border-purple-100";
 
-            return (
-              <StaggerItem key={item.id}>
-                <article
-                  className="group flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-xl"
-                >
-                  <div>
-                    {/* Category Pill */}
-                    <div className="flex items-center justify-between">
-                      <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${badgeStyle}`}>
-                        {item.category}
-                      </span>
+              return (
+                <StaggerItem key={item.id}>
+                  <article
+                    className="group flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-xl"
+                  >
+                    <div>
+                      {/* Category Pill */}
+                      <div className="flex items-center justify-between">
+                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${badgeStyle}`}>
+                          {item.category}
+                        </span>
+                      </div>
+
+                      {/* Author Header */}
+                      <div className="mt-5 flex items-center gap-3.5">
+                        <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0 bg-slate-100 transition-transform duration-200 group-hover:scale-105">
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                              {item.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-bold text-slate-900 group-hover:text-fuerza-blue transition-colors">
+                            {item.name}
+                          </h2>
+                          <p className="text-xs text-slate-500">{item.career}</p>
+                        </div>
+                      </div>
+
+                      {/* Quote Body */}
+                      <p className="mt-4 text-xs font-normal leading-relaxed text-slate-600 sm:text-sm">
+                        "{item.quote}"
+                      </p>
                     </div>
 
-                    {/* Author Header */}
-                    <div className="mt-5 flex items-center gap-3.5">
-                      <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0 bg-slate-100 transition-transform duration-200 group-hover:scale-105">
-                        {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
-                            {item.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-slate-900 group-hover:text-fuerza-blue transition-colors">
-                          {item.name}
-                        </h2>
-                        <p className="text-xs text-slate-500">{item.career}</p>
-                      </div>
+                    {/* Footer Date & Trigger Link */}
+                    <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs">
+                      <span className="font-medium text-slate-400">{item.date}</span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveModalItem(item)}
+                        className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-1 cursor-pointer"
+                      >
+                        <span>Ver más</span>
+                        <Play className="size-2.5 fill-blue-600 text-blue-600" />
+                      </button>
                     </div>
-
-                    {/* Quote Body */}
-                    <p className="mt-4 text-xs font-normal leading-relaxed text-slate-600 sm:text-sm">
-                      {item.quote}
-                    </p>
-                  </div>
-
-                  {/* Footer Date & Trigger Link */}
-                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs">
-                    <span className="font-medium text-slate-400">{item.date}</span>
-                    <button
-                      type="button"
-                      onClick={() => setActiveModalItem(item)}
-                      className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-1 cursor-pointer"
-                    >
-                      <span>Ver más</span>
-                      <Play className="size-2.5 fill-blue-600 text-blue-600" />
-                    </button>
-                  </div>
-                </article>
-              </StaggerItem>
-            );
-          })}
-        </StaggerContainer>
+                  </article>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        )}
 
         {/* MODAL DETALLE DE TESTIMONIO */}
         {activeModalItem && (
