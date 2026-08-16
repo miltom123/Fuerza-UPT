@@ -23,7 +23,13 @@ public class ClientIpResolver {
     }
 
     public String resolve(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
         String remoteAddress = request.getRemoteAddr();
+        if (remoteAddress == null) {
+            return null;
+        }
         if (!trustedProxyAddresses.contains(remoteAddress)) {
             return remoteAddress;
         }

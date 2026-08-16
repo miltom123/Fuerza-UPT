@@ -45,9 +45,9 @@ public class AuditLogService {
         log.setEntityId(entityId);
         log.setBeforeData(json(before));
         log.setAfterData(json(after));
-        log.setIpAddress(clientIpResolver.resolve(request));
+        log.setIpAddress(request != null ? clientIpResolver.resolve(request) : null);
         log.setRequestId(MDC.get("requestId"));
-        log.setUserAgent(truncate(request.getHeader("User-Agent"), 512));
+        log.setUserAgent(request != null ? truncate(request.getHeader("User-Agent"), 512) : null);
 
         auditLogRepository.save(log);
     }

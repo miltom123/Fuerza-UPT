@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,25 +10,286 @@ import {
   ChevronRight,
   ClipboardList,
   FileText,
-  Globe2,
-  GraduationCap,
-  HeartHandshake,
   Play,
   ShieldCheck,
-  Sparkles,
   Target,
   Trophy,
   Users,
 } from "lucide-react";
 import type { RepresentationItem } from "@/types";
+import { RepresentationDetailModal } from "./RepresentationDetailModal";
 import styles from "./representation-hub.module.css";
 
 interface RepresentationHubProps {
   items?: RepresentationItem[];
 }
 
+const DEFAULT_ITEMS: RepresentationItem[] = [
+  {
+    id: "legado-1",
+    title: "Ampliación del horario de biblioteca universitaria",
+    slug: "ampliacion-horario-biblioteca",
+    summary: "Se gestionó y aprobó la extensión del horario hasta las 9:00 p.m. de lunes a viernes y 5:00 p.m. los sábados.",
+    status: "PUBLISHED",
+    featured: true,
+    displayOrder: 1,
+    kind: "LOGRO",
+    progress: "LOGRADO",
+    progressPercentage: 100,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Comunidad estudiantil UPT",
+    identifiedProblem: "Los estudiantes de ciclos superiores y turnos de tarde no contaban con espacios de estudio abiertos después de las 6:00 p.m. para realizar trabajos grupales e investigaciones.",
+    proposalOrManagement: "Presentación de informe técnico al Consejo Universitario solicitando la ampliación de turnos del personal y refuerzo de seguridad en el pabellón de biblioteca.",
+    result: "Aprobación unánime en Consejo Universitario. Implementación exitosa con más de 1,200 visitas semanales en el nuevo turno extendido.",
+    actionsTaken: [
+      "Levantamiento de encuestas a 850 estudiantes sobre demanda horaria",
+      "Reunión de coordinación con la Dirección de Biblioteca y Bienestar",
+      "Emisión de resolución rectoral con nuevo cronograma de atención",
+    ],
+    evidenceUrls: ["https://fuerzaupt.edu.pe/docs/resolucion-horario-biblioteca.pdf"],
+    updatedAt: "2026-05-20T10:00:00Z",
+  },
+  {
+    id: "legado-2",
+    title: "Transporte nocturno seguro para campus central",
+    slug: "transporte-nocturno-seguro",
+    summary: "Solicitud de rutas y horarios extendidos de transporte para estudiantes de turnos nocturnos.",
+    status: "PUBLISHED",
+    featured: true,
+    displayOrder: 2,
+    kind: "GESTION",
+    progress: "EN_SEGUIMIENTO",
+    progressPercentage: 70,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Estudiantes de carreras nocturnas",
+    identifiedProblem: "Escasez de transporte público seguro a partir de las 9:30 p.m. en las salidas del campus hacia los conos de la ciudad.",
+    proposalOrManagement: "Gestión de convenio con empresas de transporte autorizadas y solicitud de resguardo municipal en paraderos principales.",
+    result: "En fase final de firma de convenio con la Municipalidad y dos líneas de transporte prioritarias.",
+    actionsTaken: [
+      "Mapeo de rutas con mayor afluencia de estudiantes",
+      "Mesa de trabajo con la Subgerencia de Transportes de Tacna",
+      "Piloto de paradero seguro en puerta principal",
+    ],
+    evidenceUrls: [],
+    updatedAt: "2026-05-28T10:00:00Z",
+  },
+  {
+    id: "legado-3",
+    title: "Más puntos de recarga eléctrica y conectividad",
+    slug: "puntos-recarga-electrica",
+    summary: "Instalación de estaciones de recarga en biblioteca y edificio de laboratorios.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 3,
+    kind: "PROPUESTA",
+    progress: "EN_EVALUACION",
+    progressPercentage: 45,
+    impactLevel: "MEDIO",
+    beneficiaryArea: "Edificios A, B y Biblioteca",
+    identifiedProblem: "Alta saturación de tomacorrientes en áreas comunes y necesidad de estaciones de carga rápida para laptops y tablets.",
+    proposalOrManagement: "Expediente de equipamiento eléctrico modular en bancas y mesas de estudio exteriores.",
+    result: "Expediente técnico derivado al área de Infraestructura para cotización.",
+    actionsTaken: [
+      "Inspección de carga eléctrica con la oficina de Mantenimiento",
+      "Cotización de torres de energía protegidas contra sobretensión",
+    ],
+    evidenceUrls: [],
+    updatedAt: "2026-05-17T10:00:00Z",
+  },
+  {
+    id: "legado-4",
+    title: "Mejoras en conectividad Wi-Fi institucional",
+    slug: "mejoras-conectividad-wifi",
+    summary: "Ampliación de cobertura y estabilidad en salones y zonas comunes de los campus.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 4,
+    kind: "GESTION",
+    progress: "PRESENTADO",
+    progressPercentage: 30,
+    impactLevel: "MEDIO",
+    beneficiaryArea: "Todos los pabellones",
+    identifiedProblem: "Zonas con baja señal de red Wi-Fi en pabellones periféricos.",
+    proposalOrManagement: "Informe de puntos ciegos presentado a la Oficina de Tecnologías de la Información (OTI).",
+    result: "OTI inició la prueba de 8 nuevos Access Points en pabellón D.",
+    actionsTaken: [
+      "Pruebas de velocidad en 15 puntos del campus",
+      "Reunión con jefatura de OTI",
+    ],
+    evidenceUrls: [],
+    updatedAt: "2026-05-09T10:00:00Z",
+  },
+  {
+    id: "legado-5",
+    title: "Becas de apoyo en conectividad y materiales",
+    slug: "becas-apoyo-conectividad",
+    summary: "10 becas y subsidios aprobados para estudiantes con dificultades de acceso a internet.",
+    status: "PUBLISHED",
+    featured: true,
+    displayOrder: 5,
+    kind: "LOGRO",
+    progress: "LOGRADO",
+    progressPercentage: 100,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Estudiantes en vulnerabilidad socioeconómica",
+    identifiedProblem: "Estudiantes en condición de vulnerabilidad con riesgo de deserción por falta de conectividad.",
+    proposalOrManagement: "Creación de fondo solidario de conectividad canalizado por Bienestar Universitario.",
+    result: "Entrega efectiva de módems y chips con internet ilimitado a 10 beneficiarios calificados.",
+    actionsTaken: [
+      "Filtro socioeconómico con trabajadoras sociales",
+      "Aprobación presupuestal por Vicerrectorado Académico",
+    ],
+    evidenceUrls: ["https://fuerzaupt.edu.pe/docs/acta-becas-conectividad.pdf"],
+    updatedAt: "2026-05-12T10:00:00Z",
+  },
+  {
+    id: "legado-6",
+    title: "Mejora en iluminación y seguridad del campus",
+    slug: "mejora-iluminacion-campus",
+    summary: "Instalación de 25 luminarias LED en senderos peatonales y zonas de alto tránsito.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 6,
+    kind: "LOGRO",
+    progress: "LOGRADO",
+    progressPercentage: 100,
+    impactLevel: "MEDIO",
+    beneficiaryArea: "Senderos peatonales y estacionamientos",
+    identifiedProblem: "Zonas oscuras en los accesos peatonales entre facultades durante la noche.",
+    proposalOrManagement: "Plan de reforzamiento lumínico con luminarias LED de bajo consumo.",
+    result: "25 luminarias instaladas y funcionando al 100%.",
+    actionsTaken: [
+      "Recorrido nocturno de inspección con seguridad interna",
+      "Instalación por cuadrilla de mantenimiento",
+    ],
+    evidenceUrls: [],
+    updatedAt: "2026-04-26T10:00:00Z",
+  },
+  {
+    id: "legado-7",
+    title: "Acta de sesión 12: Acuerdos de Consejo Universitario",
+    slug: "acta-sesion-12",
+    summary: "Acta oficial con los acuerdos tomados sobre calendario académico y matrículas extraordinarias.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 7,
+    kind: "ACUERDO",
+    progress: "CERRADO",
+    progressPercentage: 100,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Comunidad Universitaria UPT",
+    identifiedProblem: "Claridad en las fechas límite de convalidaciones y rectificación de matrículas.",
+    proposalOrManagement: "Publicación abierta y transparente de los acuerdos para todos los delegados.",
+    result: "Acta formalizada y publicada para consulta libre de estudiantes.",
+    actionsTaken: ["Suscripción de acta por representantes estudiantiles"],
+    evidenceUrls: ["https://fuerzaupt.edu.pe/docs/acta-sesion-12.pdf"],
+    updatedAt: "2026-04-15T10:00:00Z",
+  },
+  {
+    id: "legado-8",
+    title: "Acuerdo 08-2025: Fraccionamiento de pensiones",
+    slug: "acuerdo-08-2025-fraccionamiento",
+    summary: "Reglamento especial para facilidades de pago sin mora para estudiantes.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 8,
+    kind: "ACUERDO",
+    progress: "CERRADO",
+    progressPercentage: 100,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Todas las facultades",
+    identifiedProblem: "Recargos por mora en situaciones de emergencia económica familiar.",
+    proposalOrManagement: "Gestión de fraccionamiento extraordinario en Tesorería.",
+    result: "Aprobado para el semestre 2026-I y 2026-II.",
+    actionsTaken: ["Presentación de proyecto de resolución"],
+    evidenceUrls: ["https://fuerzaupt.edu.pe/docs/acuerdo-08-2025.pdf"],
+    updatedAt: "2026-03-20T10:00:00Z",
+  },
+  {
+    id: "legado-9",
+    title: "Pronunciamiento 05: Libertad y secreto del voto estudiantil",
+    slug: "pronunciamiento-05-voto-estudiantil",
+    summary: "Postura oficial de Fuerza UPT garantizando elecciones transparentes y democráticas.",
+    status: "PUBLISHED",
+    featured: false,
+    displayOrder: 9,
+    kind: "PRONUNCIAMIENTO",
+    progress: "CERRADO",
+    progressPercentage: 100,
+    impactLevel: "ALTO",
+    beneficiaryArea: "Comunidad Universitaria UPT",
+    identifiedProblem: "Garantías en los procesos electorales y fiscalización independiente.",
+    proposalOrManagement: "Comunicado oficial respaldado por los centros federados.",
+    result: "Compromiso firmado ante el Comité Electoral Universitario.",
+    actionsTaken: ["Publicación y difusión en redes oficiales"],
+    evidenceUrls: ["https://fuerzaupt.edu.pe/docs/pronunciamiento-05.pdf"],
+    updatedAt: "2026-02-10T10:00:00Z",
+  },
+];
+
 export function RepresentationHub({ items }: RepresentationHubProps) {
   const [activeQuoteIndex, setActiveQuoteIndex] = useState(0);
+
+  // Modal State for Expanded Full Detail and Catalog
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItemForModal, setSelectedItemForModal] = useState<RepresentationItem | null>(null);
+  const [modalInitialTab, setModalInitialTab] = useState<"ALL" | "SEGUIMIENTO" | "LOGROS" | "DOCUMENTOS">("ALL");
+
+  // All unified items
+  const allItems = useMemo(() => {
+    if (items && items.length > 0) {
+      return items;
+    }
+    return DEFAULT_ITEMS;
+  }, [items]);
+
+  // Classified lists for the 3 main columns
+  const trackingItems = useMemo(() => {
+    return allItems
+      .filter(
+        (i) =>
+          i.progress === "EN_SEGUIMIENTO" ||
+          i.progress === "EN_EVALUACION" ||
+          i.progress === "PRESENTADO" ||
+          i.kind === "GESTION" ||
+          i.kind === "PROPUESTA"
+      )
+      .slice(0, 3);
+  }, [allItems]);
+
+  const logroItems = useMemo(() => {
+    return allItems
+      .filter(
+        (i) =>
+          i.kind === "LOGRO" ||
+          i.progress === "LOGRADO" ||
+          i.progress === "APROBADO" ||
+          i.progress === "CERRADO"
+      )
+      .slice(0, 3);
+  }, [allItems]);
+
+  const documentItems = useMemo(() => {
+    return allItems
+      .filter(
+        (i) =>
+          i.kind === "ACUERDO" ||
+          i.kind === "PRONUNCIAMIENTO" ||
+          i.kind === "ASAMBLEA" ||
+          (i.evidenceUrls && i.evidenceUrls.length > 0)
+      )
+      .slice(0, 3);
+  }, [allItems]);
+
+  // Open modal handler
+  const openExpandedView = (
+    tab: "ALL" | "SEGUIMIENTO" | "LOGROS" | "DOCUMENTOS",
+    item?: RepresentationItem
+  ) => {
+    setModalInitialTab(tab);
+    setSelectedItemForModal(item || null);
+    setIsModalOpen(true);
+  };
 
   const quotes = [
     {
@@ -64,10 +325,14 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
               Somos una comunidad que impulsa el cambio a través del seguimiento, la transparencia y la participación estudiantil.
             </p>
             <div className={styles.heroActions}>
-              <Link href="#seguimiento" className={styles.btnPrimary}>
+              <button
+                type="button"
+                onClick={() => openExpandedView("ALL")}
+                className={styles.btnPrimary}
+              >
                 <Activity size={18} />
                 Ver gestiones activas
-              </Link>
+              </button>
               <Link href="/contacto" className={styles.btnOutline}>
                 <FileText size={18} />
                 Enviar propuesta
@@ -142,40 +407,48 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
                 <p className={styles.testimonialText}>
                   "Gracias al seguimiento de Fuerza UPT, se logró implementar talleres gratuitos de salud mental. Hoy más estudiantes tienen acceso a apoyo profesional."
                 </p>
-                <Link href="/representacion-estudiantil" className={styles.testimonialLink}>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("LOGROS")}
+                  className={styles.testimonialLink}
+                >
                   <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver testimonio
-                </Link>
+                  Ver detalle completo
+                </button>
               </article>
 
               {/* Card 2 */}
               <article className={styles.testimonialCard}>
-                <span className={styles.badgePillGreen}>Intercambio estudiantil</span>
+                <span className={styles.badgePillBlue}>Liderazgo</span>
                 <div className={styles.authorRow}>
                   <Image
                     src="/images/jose-rojas.png"
-                    alt="Retrato de José Miguel Rojas"
+                    alt="Retrato de José Rojas"
                     width={48}
                     height={48}
                     className={styles.avatarImage}
                   />
                   <div className={styles.authorInfo}>
-                    <span className={styles.authorName}>José Miguel Rojas</span>
-                    <span className={styles.authorStudy}>Estudiante de Ingeniería de Sistemas</span>
+                    <span className={styles.authorName}>José Rojas</span>
+                    <span className={styles.authorStudy}>Estudiante de Ing. Civil</span>
                   </div>
                 </div>
                 <p className={styles.testimonialText}>
-                  "Mi intercambio en México fue posible gracias a la información y acompañamiento de Fuerza UPT. Una experiencia que cambió mi visión del mundo."
+                  "Participar en las mesas de diálogo nos permitió plantear mejoras concretas para los laboratorios. La representación estudiantil realmente funciona."
                 </p>
-                <Link href="/becas" className={styles.testimonialLink}>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("LOGROS")}
+                  className={styles.testimonialLink}
+                >
                   <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver testimonio
-                </Link>
+                  Ver detalle completo
+                </button>
               </article>
 
               {/* Card 3 */}
               <article className={styles.testimonialCard}>
-                <span className={styles.badgePillBlue}>Experiencia</span>
+                <span className={styles.badgePillBlue}>Comunidad</span>
                 <div className={styles.authorRow}>
                   <Image
                     src="/images/andrea-flores.png"
@@ -186,25 +459,29 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
                   />
                   <div className={styles.authorInfo}>
                     <span className={styles.authorName}>Andrea Flores</span>
-                    <span className={styles.authorStudy}>Estudiante de Arquitectura</span>
+                    <span className={styles.authorStudy}>Estudiante de Medicina</span>
                   </div>
                 </div>
                 <p className={styles.testimonialText}>
-                  "Participar en las decisiones de la universidad me hizo sentir que mi voz importa. Fuerza UPT nos representa y trabaja por nosotros."
+                  "El apoyo durante el proceso de matrícula y becas fue clave para muchos compañeros. Saber que no estás solo marca la diferencia."
                 </p>
-                <Link href="/representacion-estudiantil" className={styles.testimonialLink}>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("LOGROS")}
+                  className={styles.testimonialLink}
+                >
                   <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                  Ver testimonio
-                </Link>
+                  Ver detalle completo
+                </button>
               </article>
             </div>
 
-            <button className={`${styles.carouselArrow} ${styles.arrowRight}`} aria-label="Siguiente testimonio">
+            <button className={`${styles.carouselArrow} ${styles.arrowRight}`} aria-label="Testimonio siguiente">
               <ChevronRight size={20} />
             </button>
           </div>
 
-          <div className={styles.centerAction}>
+          <div className={styles.centerLinkWrap}>
             <Link href="/testimonios" className={styles.btnRoundedOutline}>
               Ver todos los testimonios
               <ArrowRight size={16} />
@@ -213,40 +490,38 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
         </section>
 
         {/* ==========================================
-            3. INTERCAMBIOS QUE ABREN FRONTERAS
+            3. INTERCAMBIOS Y EXPERIENCIAS GLOBALES
            ========================================== */}
-        <section className={styles.exchangeCardContainer}>
+        <section className={styles.exchangeSection}>
           <div className={styles.exchangeLeft}>
-            <div className={styles.exchangeBadgeIcon}>
-              <Globe2 size={24} />
-            </div>
-            <h2>Intercambios que abren fronteras</h2>
-            <p>
-              Promovemos oportunidades internacionales que enriquecen tu formación académica y personal.
+            <span className={styles.eyebrow}>INTERCAMBIOS Y EXPERIENCIAS</span>
+            <h2>Cruzando fronteras, dejando huella</h2>
+            <p className={styles.lead}>
+              Nuestros estudiantes llevan el nombre de la UPT al mundo a través de programas de intercambio y estancias académicas internacionales.
             </p>
 
-            <div className={styles.exchangeFeatureList}>
-              <div className={styles.exchangeFeatureItem}>
-                <div className={styles.featureIconBox}>
-                  <GraduationCap size={18} />
+            <div className={styles.featuresList}>
+              <div className={styles.featureItem}>
+                <div className={styles.featureIconBadge}>
+                  <span className={styles.featureIcon}>🌍</span>
                 </div>
                 <p className={styles.featureText}>
-                  <strong>+25 convenios internacionales</strong> con universidades aliadas.
+                  <strong>+15 convenios internacionales</strong> activos con universidades de América y Europa.
                 </p>
               </div>
 
-              <div className={styles.exchangeFeatureItem}>
-                <div className={styles.featureIconBox}>
-                  <HeartHandshake size={18} />
+              <div className={styles.featureItem}>
+                <div className={styles.featureIconBadge}>
+                  <span className={styles.featureIcon}>🎓</span>
                 </div>
                 <p className={styles.featureText}>
-                  <strong>Apoyo en todo el proceso</strong> desde la postulación hasta tu regreso.
+                  <strong>Apoyo y asesoramiento</strong> integral para postulación a becas de movilidad.
                 </p>
               </div>
 
-              <div className={styles.exchangeFeatureItem}>
-                <div className={styles.featureIconBox}>
-                  <Sparkles size={18} />
+              <div className={styles.featureItem}>
+                <div className={styles.featureIconBadge}>
+                  <span className={styles.featureIcon}>🤝</span>
                 </div>
                 <p className={styles.featureText}>
                   <strong>Experiencias que transforman</strong> tu futuro y amplían tu red global.
@@ -299,7 +574,10 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
 
           {/* 4 Cards de Estadísticas */}
           <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
+            <div
+              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
+              onClick={() => openExpandedView("ALL")}
+            >
               <div className={styles.statIconBox}>
                 <ClipboardList size={26} />
               </div>
@@ -310,7 +588,10 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
               </div>
             </div>
 
-            <div className={styles.statCard}>
+            <div
+              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
+              onClick={() => openExpandedView("ALL")}
+            >
               <div className={styles.statIconBox}>
                 <FileText size={26} />
               </div>
@@ -321,7 +602,10 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
               </div>
             </div>
 
-            <div className={styles.statCard}>
+            <div
+              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
+              onClick={() => openExpandedView("LOGROS")}
+            >
               <div className={styles.statIconBox}>
                 <Trophy size={26} />
               </div>
@@ -332,7 +616,10 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
               </div>
             </div>
 
-            <div className={styles.statCard}>
+            <div
+              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
+              onClick={() => openExpandedView("SEGUIMIENTO")}
+            >
               <div className={styles.statIconBox}>
                 <Target size={26} />
               </div>
@@ -346,67 +633,50 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
 
           {/* Grid de 3 Columnas: En seguimiento | Resultados y logros | Documentos */}
           <div className={styles.bottomColumnsGrid}>
+            
             {/* Columna 1: En seguimiento */}
             <div className={styles.columnPanel}>
               <div className={styles.columnHeader}>
                 <h3>En seguimiento</h3>
-                <Link href="/representacion-estudiantil" className={styles.columnHeaderLink}>Ver todas</Link>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("SEGUIMIENTO")}
+                  className={styles.columnHeaderLink}
+                >
+                  Ver todas
+                </button>
               </div>
 
               <div className={styles.itemList}>
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox}>
-                    <ShieldCheck size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Transporte nocturno seguro</span>
-                      <span className={styles.itemDate}>28 may, 2026</span>
+                {trackingItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`${styles.trackingItem} cursor-pointer hover:bg-slate-50 transition`}
+                    onClick={() => openExpandedView("SEGUIMIENTO", item)}
+                    title="Haz clic para ver el detalle completo"
+                  >
+                    <div className={styles.itemIconBox}>
+                      <ShieldCheck size={16} />
                     </div>
-                    <p className={styles.itemSummary}>
-                      Solicitud de rutas y horarios extendidos para estudiantes de turnos nocturnos.
-                    </p>
-                    <div className={styles.progressBarTrack}>
-                      <div className={styles.progressBarFill} style={{ width: "70%" }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox}>
-                    <ShieldCheck size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Más puntos de recarga eléctrica</span>
-                      <span className={styles.itemDate}>17 may, 2026</span>
-                    </div>
-                    <p className={styles.itemSummary}>
-                      Instalación de estaciones de recarga en biblioteca y edificio de laboratorios.
-                    </p>
-                    <div className={styles.progressBarTrack}>
-                      <div className={styles.progressBarFill} style={{ width: "45%" }} />
+                    <div className={styles.itemInfo}>
+                      <div className={styles.itemTitleRow}>
+                        <span className={styles.itemTitle}>{item.title}</span>
+                        <span className={styles.itemDate}>
+                          {item.progressPercentage ?? 50}%
+                        </span>
+                      </div>
+                      <p className={styles.itemSummary}>
+                        {item.summary || "En proceso de gestión estudiantil."}
+                      </p>
+                      <div className={styles.progressBarTrack}>
+                        <div
+                          className={styles.progressBarFill}
+                          style={{ width: `${item.progressPercentage ?? 50}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox}>
-                    <ShieldCheck size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Mejoras en conectividad Wi-Fi</span>
-                      <span className={styles.itemDate}>09 may, 2026</span>
-                    </div>
-                    <p className={styles.itemSummary}>
-                      Ampliación de cobertura y estabilidad en salones y zonas comunes.
-                    </p>
-                    <div className={styles.progressBarTrack}>
-                      <div className={styles.progressBarFill} style={{ width: "30%" }} />
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -414,57 +684,42 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
             <div className={styles.columnPanel}>
               <div className={styles.columnHeader}>
                 <h3>Resultados y logros recientes</h3>
-                <Link href="/logros" className={styles.columnHeaderLink}>Ver todos</Link>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("LOGROS")}
+                  className={styles.columnHeaderLink}
+                >
+                  Ver todos
+                </button>
               </div>
 
               <div className={styles.itemList}>
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox} style={{ background: "#dcfce7", color: "#16a34a" }}>
-                    <Trophy size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Ampliación de horarios en biblioteca</span>
-                      <span className={styles.resultBadgeGreen}>ALTO</span>
+                {logroItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`${styles.trackingItem} cursor-pointer hover:bg-slate-50 transition`}
+                    onClick={() => openExpandedView("LOGROS", item)}
+                    title="Haz clic para ver el detalle completo"
+                  >
+                    <div
+                      className={styles.itemIconBox}
+                      style={{ background: "#dcfce7", color: "#16a34a" }}
+                    >
+                      <Trophy size={16} />
                     </div>
-                    <span className={styles.itemDate}>20 may, 2026</span>
-                    <p className={styles.itemSummary}>
-                      Se logró la extensión hasta las 9:00 p.m. en días de semana y 5:00 p.m. los sábados.
-                    </p>
-                  </div>
-                </div>
-
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox} style={{ background: "#dcfce7", color: "#16a34a" }}>
-                    <Trophy size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Becas apoyo conectividad</span>
-                      <span className={styles.resultBadgeGreen}>ALTO</span>
+                    <div className={styles.itemInfo}>
+                      <div className={styles.itemTitleRow}>
+                        <span className={styles.itemTitle}>{item.title}</span>
+                        <span className={styles.resultBadgeGreen}>
+                          {item.impactLevel || "ALTO"}
+                        </span>
+                      </div>
+                      <p className={styles.itemSummary}>
+                        {item.summary || item.result || "Logro institucional concretado."}
+                      </p>
                     </div>
-                    <span className={styles.itemDate}>12 may, 2026</span>
-                    <p className={styles.itemSummary}>
-                      10 becas de datos aprobadas para estudiantes con dificultades de acceso a internet.
-                    </p>
                   </div>
-                </div>
-
-                <div className={styles.trackingItem}>
-                  <div className={styles.itemIconBox} style={{ background: "#dcfce7", color: "#16a34a" }}>
-                    <Trophy size={16} />
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemTitleRow}>
-                      <span className={styles.itemTitle}>Mejora en iluminación del campus</span>
-                      <span className={styles.resultBadgeGreen}>MEDIO</span>
-                    </div>
-                    <span className={styles.itemDate}>26 abr, 2026</span>
-                    <p className={styles.itemSummary}>
-                      Instalación de 25 luminarias LED en senderos peatonales y zonas de alto tránsito.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -475,35 +730,33 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
               </div>
 
               <div className={styles.itemList}>
-                <div className={styles.docItem}>
-                  <FileText size={24} className={styles.docPdfIcon} />
-                  <div className={styles.docInfo}>
-                    <span className={styles.docTitle}>Acta de sesión 12</span>
-                    <span className={styles.docFormat}>PDF</span>
+                {documentItems.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className={`${styles.docItem} cursor-pointer hover:bg-slate-50 transition`}
+                    onClick={() => openExpandedView("DOCUMENTOS", item)}
+                    title="Haz clic para consultar este documento"
+                  >
+                    <FileText size={24} className={styles.docPdfIcon} />
+                    <div className={styles.docInfo}>
+                      <span className={styles.docTitle}>{item.title}</span>
+                      <span className={styles.docFormat}>
+                        {item.kind || "ACUERDO"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-
-                <div className={styles.docItem}>
-                  <FileText size={24} className={styles.docPdfIcon} />
-                  <div className={styles.docInfo}>
-                    <span className={styles.docTitle}>Acuerdo 08-2025</span>
-                    <span className={styles.docFormat}>PDF</span>
-                  </div>
-                </div>
-
-                <div className={styles.docItem}>
-                  <FileText size={24} className={styles.docPdfIcon} />
-                  <div className={styles.docInfo}>
-                    <span className={styles.docTitle}>Pronunciamiento 05</span>
-                    <span className={styles.docFormat}>PDF</span>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              <Link href="/representacion-estudiantil" className={styles.btnRoundedOutline} style={{ justifyContent: "center" }}>
+              <button
+                type="button"
+                onClick={() => openExpandedView("DOCUMENTOS")}
+                className={styles.btnRoundedOutline}
+                style={{ justifyContent: "center", width: "100%" }}
+              >
                 Ver todos los documentos
                 <ArrowRight size={16} />
-              </Link>
+              </button>
             </div>
           </div>
         </section>
@@ -528,6 +781,17 @@ export function RepresentationHub({ items }: RepresentationHubProps) {
           </Link>
         </section>
       </div>
+
+      {/* ==========================================
+          MODAL EXPANDIDO DE DETALLE COMPLETO Y CATÁLOGO
+         ========================================== */}
+      <RepresentationDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        items={allItems}
+        initialItem={selectedItemForModal}
+        initialTab={modalInitialTab}
+      />
     </div>
   );
 }

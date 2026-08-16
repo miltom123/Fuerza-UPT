@@ -79,8 +79,9 @@ export default function RepresentationAdminPage() {
         showNotification(`Nuevo registro "${req.title}" creado con éxito.`);
       }
       await fetchItems();
-    } catch {
-      showNotification("Error al guardar el registro en el servidor.", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al guardar el registro en el servidor.";
+      showNotification(msg, "error");
     }
   };
 
@@ -91,8 +92,9 @@ export default function RepresentationAdminPage() {
       await representationAdminService.archiveItem(item.id);
       showNotification(`"${item.title}" enviado a la papelera.`);
       await fetchItems();
-    } catch {
-      showNotification("Error al enviar el registro a la papelera.", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al enviar el registro a la papelera.";
+      showNotification(msg, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -105,8 +107,9 @@ export default function RepresentationAdminPage() {
       await representationAdminService.changeStatus(item.id, "DRAFT", item.version);
       showNotification(`"${item.title}" restaurado como Borrador.`);
       await fetchItems();
-    } catch {
-      showNotification("Error al restaurar el registro.", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al restaurar el registro.";
+      showNotification(msg, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -120,8 +123,9 @@ export default function RepresentationAdminPage() {
       showNotification(`"${deleteModalItem.title}" eliminado definitivamente.`);
       setDeleteModalItem(null);
       await fetchItems();
-    } catch {
-      showNotification("Error al eliminar el registro de PostgreSQL.", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar el registro de PostgreSQL.";
+      showNotification(msg, "error");
     } finally {
       setIsProcessing(false);
     }

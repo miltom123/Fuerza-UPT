@@ -150,26 +150,29 @@ public class RepresentationAdminService {
 
     @Transactional
     @CacheEvict(value = "home", allEntries = true)
-    public void archiveItem(UUID id) {
+    public RepresentationAdminResponse archiveItem(UUID id) {
         RepresentationItem item = representationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ítem no encontrado: " + id));
 
         item.setContentStatus("ARCHIVED");
-        representationRepository.save(item);
+        RepresentationItem saved = representationRepository.save(item);
         auditLogService.record(null, "ARCHIVE", "REPRESENTATION", id, null, "ARCHIVED", null);
+        return mapToResponse(saved);
     }
 
     @Transactional
     @CacheEvict(value = "home", allEntries = true)
-    public void deleteItem(UUID id, boolean confirm) {
+    public RepresentationAdminResponse deleteItem(UUID id, boolean confirm) {
         if (!confirm) {
             throw new BusinessException("Debe confirmar la eliminación permanente.");
         }
         RepresentationItem item = representationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ítem no encontrado: " + id));
 
+        RepresentationAdminResponse response = mapToResponse(item);
         representationRepository.delete(item);
         auditLogService.record(null, "DELETE_PERMANENT", "REPRESENTATION", id, null, "DELETED", null);
+        return response;
     }
 
     private void updateActionsAndEvidence(RepresentationItem item, List<String> actions, List<String> evidence) {
