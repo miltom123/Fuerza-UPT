@@ -23,6 +23,13 @@ import {
   User,
   Users,
 } from "lucide-react";
+import {
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
+import { motion, AnimatePresence } from "motion/react";
 import styles from "./join-page.module.css";
 
 const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Dytnwv6wd9TAIbxQQcOIMd?s=cl&p=a&ilr=1";
@@ -208,320 +215,357 @@ export function JoinPageContent() {
            ========================================== */}
         <section className={styles.heroContainer}>
           <div className={styles.heroLeft}>
-            <span className={styles.eyebrow}>SÉ PARTE DE FUERZA UPT</span>
-            <h1>Conoce lo que hacemos. Súmate a Fuerza UPT.</h1>
-            <p className={styles.heroLead}>
-              Conoce nuestros proyectos, participa en nuestras iniciativas y forma parte de una comunidad de estudiantes que busca transformar la universidad.
-            </p>
+            <FadeIn delay={0.05} direction="up" distance={12}>
+              <span className={styles.eyebrow}>SÉ PARTE DE FUERZA UPT</span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h1>Conoce lo que hacemos. Súmate a Fuerza UPT.</h1>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p className={styles.heroLead}>
+                Conoce nuestros proyectos, participa en nuestras iniciativas y forma parte de una comunidad de estudiantes que busca transformar la universidad.
+              </p>
+            </FadeIn>
           </div>
 
-          <div className={styles.heroRight}>
+          <FadeIn delay={0.25} direction="up" distance={20} className={styles.heroRight}>
             <Image
               src="/images/join-students-illustration.png"
               alt="Ilustración de estudiantes uniéndose a Fuerza UPT"
               fill
               priority
-              className={styles.heroIllustration}
+              className={`${styles.heroIllustration} transition-transform duration-700 hover:scale-105`}
               sizes="350px"
             />
-          </div>
+          </FadeIn>
         </section>
 
         {/* ==========================================
             2. MAIN REGISTRATION FORM CARD
            ========================================== */}
-        <section className={styles.formCard} id="registro">
-          {/* Card Header */}
-          <div className={styles.formHeader}>
-            <div className={styles.formHeaderLeft}>
-              <div className={styles.formIconBox}>
-                <FileText size={24} />
+        <Reveal delay={0.1} distance={20}>
+          <section className={`${styles.formCard} transition-all duration-300 hover:shadow-xl`} id="registro">
+            {/* Card Header */}
+            <div className={styles.formHeader}>
+              <div className={styles.formHeaderLeft}>
+                <div className={styles.formIconBox}>
+                  <FileText size={24} />
+                </div>
+                <div className={styles.formTitleGroup}>
+                  <h2>Déjanos tus datos</h2>
+                  <p>
+                    Completa tus datos para conocer nuestras iniciativas y mantenerte informado sobre las próximas actividades de Fuerza UPT.
+                  </p>
+                </div>
               </div>
-              <div className={styles.formTitleGroup}>
-                <h2>Déjanos tus datos</h2>
-                <p>
-                  Completa tus datos para conocer nuestras iniciativas y mantenerte informado sobre las próximas actividades de Fuerza UPT.
-                </p>
+
+              <div className={styles.securityNote}>
+                <Lock size={14} style={{ marginTop: 2, flexShrink: 0 }} />
+                <span>
+                  <strong>Tus datos están seguros.</strong> Usaremos esta información únicamente para comunicarnos contigo sobre Fuerza UPT.
+                </span>
               </div>
             </div>
 
-            <div className={styles.securityNote}>
-              <Lock size={14} style={{ marginTop: 2, flexShrink: 0 }} />
-              <span>
-                <strong>Tus datos están seguros.</strong> Usaremos esta información únicamente para comunicarnos contigo sobre Fuerza UPT.
-              </span>
-            </div>
-          </div>
-
-          {/* Conditional Views: FORM vs SUCCESS vs ERROR */}
-          {submissionStatus === "SUCCESS" ? (
-            <div className={styles.successCard}>
-              <div className={styles.successIconBox}>
-                <CheckCircle2 size={36} />
-              </div>
-              <h2 className={styles.successTitle}>¡Registro completado! 🎉</h2>
-              <p className={styles.successLead}>
-                Hemos recibido tus datos correctamente. Gracias por tu interés en Fuerza UPT. Ahora puedes unirte a nuestro grupo oficial para conocer nuestras próximas actividades, proyectos y oportunidades.
-              </p>
-
-              <div style={{ width: "100%", maxWidth: "480px", marginTop: "12px" }}>
-                <a
-                  href={WHATSAPP_GROUP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.btnWhatsappActive}
+            {/* Conditional Views: FORM vs SUCCESS vs ERROR */}
+            <AnimatePresence mode="wait">
+              {submissionStatus === "SUCCESS" ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className={styles.successCard}
                 >
-                  <WhatsappLogo size={24} />
-                  Unirme al grupo oficial de WhatsApp
-                  <ArrowRight size={18} />
-                </a>
-              </div>
-            </div>
-          ) : submissionStatus === "ERROR" ? (
-            <div className={styles.errorCard}>
-              <h3 className={styles.errorTitle}>No pudimos registrar tus datos</h3>
-              <p className={styles.errorDesc}>
-                Revisa tu conexión e inténtalo nuevamente.
-              </p>
-              <button
-                type="button"
-                className={styles.btnRetry}
-                onClick={() => setSubmissionStatus("IDLE")}
-              >
-                Intentar nuevamente
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Google Auth Institutional Login */}
-              <button
-                type="button"
-                className={styles.btnGoogleLogin}
-                onClick={handleGoogleLogin}
-              >
-                <svg className={styles.googleIcon} viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                  />
-                </svg>
-                {isIdentified
-                  ? "✓ Identificado con " + email
-                  : "Continuar con mi correo institucional"}
-              </button>
-
-              {/* Registration Form */}
-              <form onSubmit={handleSubmit} className={styles.formGrid}>
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Nombre completo</label>
-                  <input
-                    type="text"
-                    className={`${styles.textInput} ${isIdentified ? styles.textInputLocked : ""}`}
-                    placeholder="Se autocompletará con tu cuenta institucional"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    readOnly={isIdentified}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Correo institucional</label>
-                  <input
-                    type="email"
-                    className={`${styles.textInput} ${isIdentified ? styles.textInputLocked : ""}`}
-                    placeholder="Se autocompletará con Google"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    readOnly={isIdentified}
-                    required
-                  />
-                </div>
-
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Número de celular / WhatsApp</label>
-                  <div className={styles.inputWrapper}>
-                    <Phone size={16} className={styles.inputIcon} />
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9 ]*"
-                      maxLength={11}
-                      className={`${styles.textInput} ${styles.textInputWithIcon}`}
-                      placeholder="Ej.: 952 123 456"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      required
-                    />
+                  <div className={styles.successIconBox}>
+                    <CheckCircle2 size={36} />
                   </div>
-                </div>
+                  <h2 className={styles.successTitle}>¡Registro completado! 🎉</h2>
+                  <p className={styles.successLead}>
+                    Hemos recibido tus datos correctamente. Gracias por tu interés en Fuerza UPT. Ahora puedes unirte a nuestro grupo oficial para conocer nuestras próximas actividades, proyectos y oportunidades.
+                  </p>
 
-
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Ciclo actual</label>
-                  <select
-                    className={styles.selectInput}
-                    value={selectedSemester}
-                    onChange={(e) => setSelectedSemester(e.target.value)}
-                    required
-                  >
-                    <option value="">Selecciona tu ciclo</option>
-                    {semesters.map((sem) => (
-                      <option key={sem} value={sem}>
-                        {sem}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Facultad</label>
-                  <select
-                    className={styles.selectInput}
-                    value={selectedFaculty}
-                    onChange={(e) => handleFacultyChange(e.target.value)}
-                  >
-                    {Object.keys(facultiesWithCareers).map((fac) => (
-                      <option key={fac} value={fac}>
-                        {fac}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formField}>
-                  <label className={styles.fieldLabel}>Carrera profesional</label>
-                  <select
-                    className={styles.selectInput}
-                    value={selectedCareer}
-                    onChange={(e) => setSelectedCareer(e.target.value)}
-                  >
-                    {(facultiesWithCareers[selectedFaculty] || []).map((car) => (
-                      <option key={car} value={car}>
-                        {car}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.formFieldFull}>
-                  <label className={styles.fieldLabel}>¿En qué te gustaría participar?</label>
-                  <select
-                    className={styles.selectInput}
-                    value={selectedInterest}
-                    onChange={(e) => setSelectedInterest(e.target.value)}
-                    required
-                  >
-                    <option value="">Elige los temas que más te interesan</option>
-                    {interestsOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Submit & Disabled WhatsApp Actions */}
-                <div className={styles.formFieldFull} style={{ marginTop: 8 }}>
-                  <div className={styles.formActions}>
-                    <button
-                      type="submit"
-                      className={styles.btnSubmitPrimary}
-                      disabled={submissionStatus === "SUBMITTING"}
+                  <div style={{ width: "100%", maxWidth: "480px", marginTop: "12px" }}>
+                    <a
+                      href={WHATSAPP_GROUP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.btnWhatsappActive} transition-transform duration-200 hover:scale-105 active:scale-95`}
                     >
-                      {submissionStatus === "SUBMITTING" ? (
-                        "Enviando información..."
-                      ) : (
-                        <>
-                          Quiero ser parte
-                          <ArrowRight size={16} />
-                        </>
-                      )}
-                    </button>
+                      <WhatsappLogo size={24} />
+                      Unirme al grupo oficial de WhatsApp
+                      <ArrowRight size={18} />
+                    </a>
+                  </div>
+                </motion.div>
+              ) : submissionStatus === "ERROR" ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={styles.errorCard}
+                >
+                  <h3 className={styles.errorTitle}>No pudimos registrar tus datos</h3>
+                  <p className={styles.errorDesc}>
+                    Revisa tu conexión e inténtalo nuevamente.
+                  </p>
+                  <button
+                    type="button"
+                    className={`${styles.btnRetry} transition-transform duration-200 hover:scale-105`}
+                    onClick={() => setSubmissionStatus("IDLE")}
+                  >
+                    Intentar nuevamente
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {/* Google Auth Institutional Login */}
+                  <button
+                    type="button"
+                    className={`${styles.btnGoogleLogin} transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]`}
+                    onClick={handleGoogleLogin}
+                  >
+                    <svg className={styles.googleIcon} viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                      />
+                    </svg>
+                    {isIdentified
+                      ? "✓ Identificado con " + email
+                      : "Continuar con mi correo institucional"}
+                  </button>
 
-                    {/* WhatsApp Button (Locked until form submission succeeds) */}
-                    <div className={styles.btnWhatsappDisabled}>
-                      <WhatsappLogo size={18} />
-                      🔒 Completa el registro para habilitar el grupo de WhatsApp
+                  {/* Registration Form */}
+                  <form onSubmit={handleSubmit} className={styles.formGrid}>
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Nombre completo</label>
+                      <input
+                        type="text"
+                        className={`${styles.textInput} ${isIdentified ? styles.textInputLocked : ""}`}
+                        placeholder="Se autocompletará con tu cuenta institucional"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        readOnly={isIdentified}
+                        required
+                      />
                     </div>
 
-                    <p className={styles.legalNote}>
-                      <Lock size={12} style={{ marginTop: 2, flexShrink: 0 }} />
-                      Al enviar tus datos, autorizas a Fuerza UPT a utilizarlos únicamente para comunicarse contigo sobre sus actividades, proyectos y oportunidades de participación.
-                    </p>
-                  </div>
-                </div>
-              </form>
-            </>
-          )}
-        </section>
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Correo institucional</label>
+                      <input
+                        type="email"
+                        className={`${styles.textInput} ${isIdentified ? styles.textInputLocked : ""}`}
+                        placeholder="Se autocompletará con Google"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        readOnly={isIdentified}
+                        required
+                      />
+                    </div>
+
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Número de celular / WhatsApp</label>
+                      <div className={styles.inputWrapper}>
+                        <Phone size={16} className={styles.inputIcon} />
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          pattern="[0-9 ]*"
+                          maxLength={11}
+                          className={`${styles.textInput} ${styles.textInputWithIcon}`}
+                          placeholder="Ej.: 952 123 456"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Ciclo actual</label>
+                      <select
+                        className={styles.selectInput}
+                        value={selectedSemester}
+                        onChange={(e) => setSelectedSemester(e.target.value)}
+                        required
+                      >
+                        <option value="">Selecciona tu ciclo</option>
+                        {semesters.map((sem) => (
+                          <option key={sem} value={sem}>
+                            {sem}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Facultad</label>
+                      <select
+                        className={styles.selectInput}
+                        value={selectedFaculty}
+                        onChange={(e) => handleFacultyChange(e.target.value)}
+                      >
+                        {Object.keys(facultiesWithCareers).map((fac) => (
+                          <option key={fac} value={fac}>
+                            {fac}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className={styles.formField}>
+                      <label className={styles.fieldLabel}>Carrera profesional</label>
+                      <select
+                        className={styles.selectInput}
+                        value={selectedCareer}
+                        onChange={(e) => setSelectedCareer(e.target.value)}
+                      >
+                        {(facultiesWithCareers[selectedFaculty] || []).map((car) => (
+                          <option key={car} value={car}>
+                            {car}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className={styles.formFieldFull}>
+                      <label className={styles.fieldLabel}>¿En qué te gustaría participar?</label>
+                      <select
+                        className={styles.selectInput}
+                        value={selectedInterest}
+                        onChange={(e) => setSelectedInterest(e.target.value)}
+                        required
+                      >
+                        <option value="">Elige los temas que más te interesan</option>
+                        {interestsOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Submit & Disabled WhatsApp Actions */}
+                    <div className={styles.formFieldFull} style={{ marginTop: 8 }}>
+                      <div className={styles.formActions}>
+                        <button
+                          type="submit"
+                          className={`${styles.btnSubmitPrimary} group/btn transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]`}
+                          disabled={submissionStatus === "SUBMITTING"}
+                        >
+                          {submissionStatus === "SUBMITTING" ? (
+                            "Enviando información..."
+                          ) : (
+                            <>
+                              Quiero ser parte
+                              <ArrowRight size={16} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
+                            </>
+                          )}
+                        </button>
+
+                        {/* WhatsApp Button (Locked until form submission succeeds) */}
+                        <div className={styles.btnWhatsappDisabled}>
+                          <WhatsappLogo size={18} />
+                          🔒 Completa el registro para habilitar el grupo de WhatsApp
+                        </div>
+
+                        <p className={styles.legalNote}>
+                          <Lock size={12} style={{ marginTop: 2, flexShrink: 0 }} />
+                          Al enviar tus datos, autorizas a Fuerza UPT a utilizarlos únicamente para comunicarse contigo sobre sus actividades, proyectos y oportunidades de participación.
+                        </p>
+                      </div>
+                    </div>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+        </Reveal>
 
         {/* ==========================================
             3. PROCESS STEPS SECTION
            ========================================== */}
         <section className={styles.processSection}>
-          <div className={styles.sectionHeaderCenter}>
-            <h2>¿Cómo empezamos?</h2>
-            <p>Te acompañamos desde el primer contacto hasta tu incorporación a nuestra comunidad.</p>
-          </div>
-
-          <div className={styles.stepsGrid}>
-            <div className={styles.stepCard}>
-              <span className={styles.stepBadge}>01</span>
-              <div className={styles.stepIconBox}>
-                <User size={22} />
-              </div>
-              <span className={styles.stepTitle}>Identifícate</span>
-              <p className={styles.stepDesc}>
-                Continúa con tu correo institucional UPT.
-              </p>
+          <Reveal delay={0.05} distance={14}>
+            <div className={styles.sectionHeaderCenter}>
+              <h2>¿Cómo empezamos?</h2>
+              <p>Te acompañamos desde el primer contacto hasta tu incorporación a nuestra comunidad.</p>
             </div>
+          </Reveal>
 
-            <div className={styles.stepCard}>
-              <span className={styles.stepBadge}>02</span>
-              <div className={styles.stepIconBox}>
-                <FileText size={22} />
+          <StaggerContainer className={styles.stepsGrid} staggerDelay={0.08}>
+            <StaggerItem>
+              <div className={`${styles.stepCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg`}>
+                <span className={styles.stepBadge}>01</span>
+                <div className={`${styles.stepIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <User size={22} />
+                </div>
+                <span className={styles.stepTitle}>Identifícate</span>
+                <p className={styles.stepDesc}>
+                  Continúa con tu correo institucional UPT.
+                </p>
               </div>
-              <span className={styles.stepTitle}>Cuéntanos sobre ti</span>
-              <p className={styles.stepDesc}>
-                Completa tus datos académicos, de contacto e intereses.
-              </p>
-            </div>
+            </StaggerItem>
 
-            <div className={styles.stepCard}>
-              <span className={styles.stepBadge}>03</span>
-              <div className={styles.stepIconBox}>
-                <Users size={22} />
+            <StaggerItem>
+              <div className={`${styles.stepCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg`}>
+                <span className={styles.stepBadge}>02</span>
+                <div className={`${styles.stepIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <FileText size={22} />
+                </div>
+                <span className={styles.stepTitle}>Cuéntanos sobre ti</span>
+                <p className={styles.stepDesc}>
+                  Completa tus datos académicos, de contacto e intereses.
+                </p>
               </div>
-              <span className={styles.stepTitle}>Conoce Fuerza UPT</span>
-              <p className={styles.stepDesc}>
-                Descubre nuestros proyectos, actividades y oportunidades.
-              </p>
-            </div>
+            </StaggerItem>
 
-            <div className={styles.stepCard}>
-              <span className={styles.stepBadge}>04</span>
-              <div className={styles.stepIconBox}>
-                <CheckCircle2 size={22} />
+            <StaggerItem>
+              <div className={`${styles.stepCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg`}>
+                <span className={styles.stepBadge}>03</span>
+                <div className={`${styles.stepIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <Users size={22} />
+                </div>
+                <span className={styles.stepTitle}>Conoce Fuerza UPT</span>
+                <p className={styles.stepDesc}>
+                  Descubre nuestros proyectos, actividades y oportunidades.
+                </p>
               </div>
-              <span className={styles.stepTitle}>Súmate</span>
-              <p className={styles.stepDesc}>
-                Únete a nuestra comunidad y participa en las próximas iniciativas.
-              </p>
-            </div>
-          </div>
+            </StaggerItem>
+
+            <StaggerItem>
+              <div className={`${styles.stepCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg`}>
+                <span className={styles.stepBadge}>04</span>
+                <div className={`${styles.stepIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <CheckCircle2 size={22} />
+                </div>
+                <span className={styles.stepTitle}>Súmate</span>
+                <p className={styles.stepDesc}>
+                  Únete a nuestra comunidad y participa en las próximas iniciativas.
+                </p>
+              </div>
+            </StaggerItem>
+          </StaggerContainer>
         </section>
 
         {/* ==========================================
@@ -529,7 +573,7 @@ export function JoinPageContent() {
            ========================================== */}
         <section className={styles.bottomGrid}>
           {/* Left Column: Preguntas frecuentes */}
-          <div className={styles.panelCard}>
+          <Reveal className={styles.panelCard} delay={0.08} distance={18}>
             <h3>Preguntas frecuentes</h3>
 
             <div className={styles.faqList}>
@@ -570,24 +614,34 @@ export function JoinPageContent() {
                       }}
                     />
                   </button>
-                  {openFaq === idx && (
-                    <div className={styles.faqAnswer}>{faq.a}</div>
-                  )}
+                  <AnimatePresence>
+                    {openFaq === idx && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className={styles.faqAnswer}
+                      >
+                        {faq.a}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
 
-            <Link href="/contacto" className={styles.panelLink}>
-              Ver todas las preguntas
-              <ArrowRight size={14} />
+            <Link href="/contacto" className={`${styles.panelLink} group/link`}>
+              <span>Ver todas las preguntas</span>
+              <ArrowRight size={14} className="transition-transform duration-200 group-hover/link:translate-x-1" />
             </Link>
-          </div>
+          </Reveal>
 
           {/* Right Column: Áreas referenciales */}
-          <div className={styles.panelCard}>
+          <Reveal className={styles.panelCard} delay={0.14} distance={18}>
             <h3>¿Qué hacemos?</h3>
 
-            <div className={styles.areaList}>
+            <StaggerContainer className={styles.areaList} staggerDelay={0.05}>
               {[
                 { name: "Legado Fuerza UPT", icon: User },
                 { name: "Proyectos", icon: Target },
@@ -598,25 +652,27 @@ export function JoinPageContent() {
               ].map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className={styles.areaItem}>
-                    <div className={styles.areaIconBox}>
-                      <IconComponent size={16} />
+                  <StaggerItem key={idx}>
+                    <div className={`${styles.areaItem} group transition-all duration-200 hover:scale-[1.02] hover:shadow-xs`}>
+                      <div className={`${styles.areaIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                        <IconComponent size={16} />
+                      </div>
+                      <span className={styles.areaName}>{item.name}</span>
                     </div>
-                    <span className={styles.areaName}>{item.name}</span>
-                  </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerContainer>
 
             <p className={styles.panelFooterNote}>
               Conoce nuestras áreas y descubre dónde puedes aportar.
             </p>
 
-            <Link href="/contacto" className={styles.panelLink}>
-              Conoce más sobre cada área
-              <ArrowRight size={14} />
+            <Link href="/contacto" className={`${styles.panelLink} group/link`}>
+              <span>Conoce más sobre cada área</span>
+              <ArrowRight size={14} className="transition-transform duration-200 group-hover/link:translate-x-1" />
             </Link>
-          </div>
+          </Reveal>
         </section>
       </div>
     </div>

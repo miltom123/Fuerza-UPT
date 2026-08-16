@@ -20,6 +20,14 @@ import {
 } from "lucide-react";
 import type { RepresentationItem } from "@/types";
 import type { StoryPublicResponse } from "@/types/story";
+import {
+  AnimatedCounter,
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
+import { motion, AnimatePresence } from "motion/react";
 import { RepresentationDetailModal } from "./RepresentationDetailModal";
 import styles from "./representation-hub.module.css";
 
@@ -413,30 +421,38 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
            ========================================== */}
         <section className={styles.hero}>
           <div className={styles.heroLeft}>
-            <span className={styles.eyebrow}>LEGADO FUERZA UPT</span>
-            <h1 className={styles.heroTitle}>
-              <span className={styles.titleDark}>HISTORIAS</span><br />
-              <span className={styles.titleDark}>QUE INSPIRAN,</span><br />
-              <span className={styles.titleRed}>ACCIONES QUE</span><br />
-              <span className={styles.titleGreen}>TRANSFORMAN</span>
-            </h1>
-            <p className={styles.lead}>
-              Somos una comunidad que impulsa el cambio a través del seguimiento, la transparencia y la participación estudiantil.
-            </p>
-            <div className={styles.heroActions}>
-              <button
-                type="button"
-                onClick={() => openExpandedView("ALL")}
-                className={styles.btnPrimary}
-              >
-                <Activity size={18} />
-                VER GESTIONES ACTIVAS
-              </button>
-              <Link href="/contacto" className={styles.btnOutline}>
-                <FileText size={18} />
-                ENVIAR PROPUESTA
-              </Link>
-            </div>
+            <FadeIn delay={0.05} direction="up" distance={12}>
+              <span className={styles.eyebrow}>LEGADO FUERZA UPT</span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h1 className={styles.heroTitle}>
+                <span className={styles.titleDark}>HISTORIAS</span><br />
+                <span className={styles.titleDark}>QUE INSPIRAN,</span><br />
+                <span className={styles.titleRed}>ACCIONES QUE</span><br />
+                <span className={styles.titleGreen}>TRANSFORMAN</span>
+              </h1>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p className={styles.lead}>
+                Somos una comunidad que impulsa el cambio a través del seguimiento, la transparencia y la participación estudiantil.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.25} direction="up" distance={16}>
+              <div className={styles.heroActions}>
+                <button
+                  type="button"
+                  onClick={() => openExpandedView("ALL")}
+                  className={`${styles.btnPrimary} transition-all duration-200 hover:scale-105 active:scale-95`}
+                >
+                  <Activity size={18} />
+                  VER GESTIONES ACTIVAS
+                </button>
+                <Link href="/contacto" className={`${styles.btnOutline} transition-all duration-200 hover:scale-105 active:scale-95`}>
+                  <FileText size={18} />
+                  ENVIAR PROPUESTA
+                </Link>
+              </div>
+            </FadeIn>
           </div>
 
           <div className={styles.heroRight}>
@@ -444,30 +460,40 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
             <div className={styles.dotGrid} />
             <div className={styles.waveLines} />
 
-            <div className={styles.heroImageWrapper}>
+            <FadeIn delay={0.15} direction="none" className={styles.heroImageWrapper}>
               <div className={styles.heroRedCurve} />
               <Image
                 src="/images/hero-student.png"
                 alt="Estudiante universitario de Fuerza UPT"
                 fill
                 priority
-                className={styles.heroImage}
+                className={`${styles.heroImage} transition-transform duration-700 hover:scale-105`}
                 sizes="(max-width: 1024px) 100vw, 550px"
               />
-            </div>
+            </FadeIn>
 
-            <div className={styles.quoteCard}>
+            <div className={`${styles.quoteCard} transition-all duration-300 hover:shadow-xl`}>
               <span className={styles.quoteIcon}>“</span>
-              <p className={styles.quoteText}>{quotes[safeQuoteIndex]?.text || defaultQuotes[0].text}</p>
-              <div className={styles.quoteMeta}>
-                <span className={styles.quoteAuthor}>— {quotes[safeQuoteIndex]?.author || defaultQuotes[0].author}</span>
-                <span className={styles.quoteRole}>{quotes[safeQuoteIndex]?.role || defaultQuotes[0].role}</span>
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={safeQuoteIndex}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                  <p className={styles.quoteText}>{quotes[safeQuoteIndex]?.text || defaultQuotes[0].text}</p>
+                  <div className={styles.quoteMeta}>
+                    <span className={styles.quoteAuthor}>— {quotes[safeQuoteIndex]?.author || defaultQuotes[0].author}</span>
+                    <span className={styles.quoteRole}>{quotes[safeQuoteIndex]?.role || defaultQuotes[0].role}</span>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
               <div className={styles.quoteDots}>
                 {quotes.map((_, idx) => (
                   <span
                     key={idx}
-                    className={`${styles.dot} ${idx === safeQuoteIndex ? styles.dotActive : ""}`}
+                    className={`${styles.dot} ${idx === safeQuoteIndex ? styles.dotActive : ""} transition-all duration-300`}
                     onClick={() => setActiveQuoteIndex(idx)}
                     style={{ cursor: "pointer" }}
                   />
@@ -481,18 +507,20 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
             2. VOCES QUE CONSTRUYEN UNIVERSIDAD
            ========================================== */}
         <section className={styles.testimonialsSection}>
-          <div className={styles.sectionHeaderCenter}>
-            <h2>Voces que construyen universidad</h2>
-            <div className={styles.titleDivider}>
-              <span className={styles.dividerRed} />
-              <span className={styles.dividerGreen} />
+          <Reveal delay={0.05} distance={16}>
+            <div className={styles.sectionHeaderCenter}>
+              <h2>Voces que construyen universidad</h2>
+              <div className={styles.titleDivider}>
+                <span className={styles.dividerRed} />
+                <span className={styles.dividerGreen} />
+              </div>
+              <p>Conoce las experiencias de estudiantes que han sido parte del cambio.</p>
             </div>
-            <p>Conoce las experiencias de estudiantes que han sido parte del cambio.</p>
-          </div>
+          </Reveal>
 
           <div className={styles.carouselWrapper}>
             <button
-              className={`${styles.carouselArrow} ${styles.arrowLeft}`}
+              className={`${styles.carouselArrow} ${styles.arrowLeft} transition-transform duration-200 hover:scale-110 active:scale-95`}
               aria-label="Testimonio anterior"
               onClick={() =>
                 setActiveTestimonialPage((prev) =>
@@ -503,68 +531,80 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
               <ChevronLeft size={20} />
             </button>
 
-            <div className={styles.testimonialsGrid}>
-              {displayStories
-                .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
-                .map((t, idx) => {
-                  const isExp = t.category === "Experiencia" || t.category === "Beca";
-                  const isLid = t.category === "Liderazgo" || t.category === "Proyecto";
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTestimonialPage}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className={styles.testimonialsGrid}
+              >
+                {displayStories
+                  .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
+                  .map((t, idx) => {
+                    const isExp = t.category === "Experiencia" || t.category === "Beca";
+                    const isLid = t.category === "Liderazgo" || t.category === "Proyecto";
 
-                  const iconClass = isExp ? styles.iconHeart : isLid ? styles.iconStar : styles.iconUsers;
-                  const badgeClass = isExp ? styles.badgePillRed : isLid ? styles.badgePillBlue : styles.badgePillGreen;
-                  const linkClass = isExp ? styles.linkRed : isLid ? styles.linkBlue : styles.linkGreen;
+                    const iconClass = isExp ? styles.iconHeart : isLid ? styles.iconStar : styles.iconUsers;
+                    const badgeClass = isExp ? styles.badgePillRed : isLid ? styles.badgePillBlue : styles.badgePillGreen;
+                    const linkClass = isExp ? styles.linkRed : isLid ? styles.linkBlue : styles.linkGreen;
 
-                  return (
-                    <article key={t.id || idx} className={styles.testimonialCard}>
-                      <div className={`${styles.cardTopIcon} ${iconClass}`}>
-                        {isExp ? (
-                          <Heart className="size-5 fill-white stroke-none" />
-                        ) : isLid ? (
-                          <Star className="size-5 fill-white stroke-none" />
-                        ) : (
-                          <Users className="size-5" />
-                        )}
-                      </div>
-
-                      <div className={styles.cardTopRow}>
-                        <span className={badgeClass}>{t.category}</span>
-                      </div>
-
-                      <div className={styles.authorRow}>
-                        <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0">
-                          {t.imageUrl ? (
-                            <img
-                              src={t.imageUrl}
-                              alt={t.authorName}
-                              className="size-full object-cover"
-                            />
+                    return (
+                      <article
+                        key={t.id || idx}
+                        className={`${styles.testimonialCard} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}
+                      >
+                        <div className={`${styles.cardTopIcon} ${iconClass} transition-transform duration-200 group-hover:scale-110`}>
+                          {isExp ? (
+                            <Heart className="size-5 fill-white stroke-none" />
+                          ) : isLid ? (
+                            <Star className="size-5 fill-white stroke-none" />
                           ) : (
-                            <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
-                              {t.authorName.charAt(0)}
-                            </div>
+                            <Users className="size-5" />
                           )}
                         </div>
-                        <div className={styles.authorInfo}>
-                          <span className={styles.authorName}>{t.authorName}</span>
-                          <span className={styles.authorStudy}>{t.authorCareer}</span>
+
+                        <div className={styles.cardTopRow}>
+                          <span className={badgeClass}>{t.category}</span>
                         </div>
-                      </div>
 
-                      <p className={styles.testimonialText}>"{t.quote}"</p>
+                        <div className={styles.authorRow}>
+                          <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0 transition-transform duration-300 group-hover:scale-105">
+                            {t.imageUrl ? (
+                              <img
+                                src={t.imageUrl}
+                                alt={t.authorName}
+                                className="size-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                                {t.authorName.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <div className={styles.authorInfo}>
+                            <span className={styles.authorName}>{t.authorName}</span>
+                            <span className={styles.authorStudy}>{t.authorCareer}</span>
+                          </div>
+                        </div>
 
-                      <div className="pt-2 border-t border-slate-100/60">
-                        <Link href="/testimonios" className={`${styles.testimonialLink} ${linkClass}`}>
-                          <span>Ver detalle completo</span>
-                          <ArrowRight size={14} />
-                        </Link>
-                      </div>
-                    </article>
-                  );
-                })}
-            </div>
+                        <p className={styles.testimonialText}>"{t.quote}"</p>
+
+                        <div className="pt-2 border-t border-slate-100/60">
+                          <Link href="/testimonios" className={`${styles.testimonialLink} ${linkClass} group/link`}>
+                            <span>Ver detalle completo</span>
+                            <ArrowRight size={14} className="transition-transform duration-200 group-hover/link:translate-x-1" />
+                          </Link>
+                        </div>
+                      </article>
+                    );
+                  })}
+              </motion.div>
+            </AnimatePresence>
 
             <button
-              className={`${styles.carouselArrow} ${styles.arrowRight}`}
+              className={`${styles.carouselArrow} ${styles.arrowRight} transition-transform duration-200 hover:scale-110 active:scale-95`}
               aria-label="Testimonio siguiente"
               onClick={() =>
                 setActiveTestimonialPage((prev) =>
@@ -577,7 +617,7 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
           </div>
 
           <div className={styles.centerLinkWrap}>
-            <Link href="/testimonios" className={styles.btnRoundedOutline}>
+            <Link href="/testimonios" className={`${styles.btnRoundedOutline} transition-all duration-200 hover:scale-105 active:scale-95`}>
               VER TODOS LOS TESTIMONIOS
               <ArrowRight size={16} />
             </Link>
@@ -589,148 +629,178 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
            ========================================== */}
         <section className={styles.exchangeSection}>
           <div className={styles.exchangeLeft}>
-            <span className={styles.eyebrow}>INTERCAMBIOS Y EXPERIENCIAS</span>
-            <h2>Cruzando fronteras, dejando huella</h2>
-            <p className={styles.lead}>
-              Nuestros estudiantes llevan el nombre de la UPT al mundo a través de programas de intercambio y estancias académicas internacionales.
-            </p>
+            <FadeIn delay={0.05} direction="up" distance={12}>
+              <span className={styles.eyebrow}>INTERCAMBIOS Y EXPERIENCIAS</span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h2>Cruzando fronteras, dejando huella</h2>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p className={styles.lead}>
+                Nuestros estudiantes llevan el nombre de la UPT al mundo a través de programas de intercambio y estancias académicas internacionales.
+              </p>
+            </FadeIn>
 
-            <div className={styles.featuresList}>
-              <div className={styles.featureItem}>
-                <div className={styles.featureIconBadge}>
-                  <span className={styles.featureIcon}>🌍</span>
+            <StaggerContainer className={styles.featuresList} staggerDelay={0.08}>
+              <StaggerItem>
+                <div className={`${styles.featureItem} group transition-all duration-200 hover:translate-x-1`}>
+                  <div className={`${styles.featureIconBadge} transition-transform duration-200 group-hover:scale-110`}>
+                    <span className={styles.featureIcon}>🌍</span>
+                  </div>
+                  <p className={styles.featureText}>
+                    <strong>+15 convenios internacionales</strong> activos con universidades de América y Europa.
+                  </p>
                 </div>
-                <p className={styles.featureText}>
-                  <strong>+15 convenios internacionales</strong> activos con universidades de América y Europa.
-                </p>
-              </div>
+              </StaggerItem>
 
-              <div className={styles.featureItem}>
-                <div className={styles.featureIconBadge}>
-                  <span className={styles.featureIcon}>🎓</span>
+              <StaggerItem>
+                <div className={`${styles.featureItem} group transition-all duration-200 hover:translate-x-1`}>
+                  <div className={`${styles.featureIconBadge} transition-transform duration-200 group-hover:scale-110`}>
+                    <span className={styles.featureIcon}>🎓</span>
+                  </div>
+                  <p className={styles.featureText}>
+                    <strong>Apoyo y asesoramiento</strong> integral para postulación a becas de movilidad.
+                  </p>
                 </div>
-                <p className={styles.featureText}>
-                  <strong>Apoyo y asesoramiento</strong> integral para postulación a becas de movilidad.
-                </p>
-              </div>
+              </StaggerItem>
 
-              <div className={styles.featureItem}>
-                <div className={styles.featureIconBadge}>
-                  <span className={styles.featureIcon}>🤝</span>
+              <StaggerItem>
+                <div className={`${styles.featureItem} group transition-all duration-200 hover:translate-x-1`}>
+                  <div className={`${styles.featureIconBadge} transition-transform duration-200 group-hover:scale-110`}>
+                    <span className={styles.featureIcon}>🤝</span>
+                  </div>
+                  <p className={styles.featureText}>
+                    <strong>Experiencias que transforman</strong> tu futuro y amplían tu red global.
+                  </p>
                 </div>
-                <p className={styles.featureText}>
-                  <strong>Experiencias que transforman</strong> tu futuro y amplían tu red global.
-                </p>
-              </div>
-            </div>
+              </StaggerItem>
+            </StaggerContainer>
           </div>
 
-          <div className={styles.exchangeRightCollage}>
-            <div className={styles.collageLeftPhoto}>
+          <Reveal delay={0.15} distance={20} className={styles.exchangeRightCollage}>
+            <div className={`${styles.collageLeftPhoto} overflow-hidden`}>
               <Image
                 src="/images/exchange-florence.png"
                 alt="Estudiante en intercambio internacional"
                 fill
-                className={styles.heroImage}
+                className={`${styles.heroImage} transition-transform duration-500 hover:scale-105`}
                 sizes="300px"
               />
             </div>
             <div className={styles.collageRightStack}>
-              <div className={styles.collageRightPhoto}>
+              <div className={`${styles.collageRightPhoto} overflow-hidden`}>
                 <Image
                   src="/images/exchange-berlin.png"
                   alt="Grupo de estudiantes Fuerza UPT en Europa"
                   fill
-                  className={styles.heroImage}
+                  className={`${styles.heroImage} transition-transform duration-500 hover:scale-105`}
                   sizes="250px"
                 />
               </div>
-              <div className={styles.collageRightPhoto}>
+              <div className={`${styles.collageRightPhoto} overflow-hidden`}>
                 <Image
                   src="/images/exchange-mountains.png"
                   alt="Estudiante de intercambio en paisaje montañoso"
                   fill
-                  className={styles.heroImage}
+                  className={`${styles.heroImage} transition-transform duration-500 hover:scale-105`}
                   sizes="250px"
                 />
               </div>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         {/* ==========================================
             4. NUESTRO IMPACTO EN CIFRAS
            ========================================== */}
         <section className={styles.statsSection} id="seguimiento">
-          <div className={styles.sectionHeaderCenter}>
-            <h2>Nuestro impacto en cifras</h2>
-            <p>Resultados que reflejan nuestro compromiso con la comunidad estudiantil.</p>
-          </div>
-
-          {/* 4 Cards de Estadísticas */}
-          <div className={styles.statsGrid}>
-            <div
-              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
-              onClick={() => openExpandedView("ALL")}
-            >
-              <div className={styles.statIconBox}>
-                <ClipboardList size={26} />
-              </div>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>128</span>
-                <span className={styles.statLabel}>Gestiones realizadas</span>
-                <span className={styles.statBadgeGreen}>+18 este semestre</span>
-              </div>
+          <Reveal delay={0.05} distance={16}>
+            <div className={styles.sectionHeaderCenter}>
+              <h2>Nuestro impacto en cifras</h2>
+              <p>Resultados que reflejan nuestro compromiso con la comunidad estudiantil.</p>
             </div>
+          </Reveal>
 
-            <div
-              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
-              onClick={() => openExpandedView("ALL")}
-            >
-              <div className={styles.statIconBox}>
-                <FileText size={26} />
+          {/* 4 Cards de Estadísticas con AnimatedCounter */}
+          <StaggerContainer className={styles.statsGrid} staggerDelay={0.07}>
+            <StaggerItem>
+              <div
+                className={`${styles.statCard} group cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-300`}
+                onClick={() => openExpandedView("ALL")}
+              >
+                <div className={`${styles.statIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <ClipboardList size={26} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    <AnimatedCounter value={128} />
+                  </span>
+                  <span className={styles.statLabel}>Gestiones realizadas</span>
+                  <span className={styles.statBadgeGreen}>+18 este semestre</span>
+                </div>
               </div>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>47</span>
-                <span className={styles.statLabel}>Propuestas presentadas</span>
-                <span className={styles.statBadgeGreen}>+9 este semestre</span>
-              </div>
-            </div>
+            </StaggerItem>
 
-            <div
-              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
-              onClick={() => openExpandedView("LOGROS")}
-            >
-              <div className={styles.statIconBox}>
-                <Trophy size={26} />
+            <StaggerItem>
+              <div
+                className={`${styles.statCard} group cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-300`}
+                onClick={() => openExpandedView("ALL")}
+              >
+                <div className={`${styles.statIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <FileText size={26} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    <AnimatedCounter value={47} />
+                  </span>
+                  <span className={styles.statLabel}>Propuestas presentadas</span>
+                  <span className={styles.statBadgeGreen}>+9 este semestre</span>
+                </div>
               </div>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>36</span>
-                <span className={styles.statLabel}>Logros alcanzados</span>
-                <span className={styles.statBadgeGreen}>+7 este semestre</span>
-              </div>
-            </div>
+            </StaggerItem>
 
-            <div
-              className={`${styles.statCard} cursor-pointer hover:border-blue-300 transition`}
-              onClick={() => openExpandedView("SEGUIMIENTO")}
-            >
-              <div className={styles.statIconBox}>
-                <Target size={26} />
+            <StaggerItem>
+              <div
+                className={`${styles.statCard} group cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-300`}
+                onClick={() => openExpandedView("LOGROS")}
+              >
+                <div className={`${styles.statIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <Trophy size={26} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    <AnimatedCounter value={36} />
+                  </span>
+                  <span className={styles.statLabel}>Logros alcanzados</span>
+                  <span className={styles.statBadgeGreen}>+7 este semestre</span>
+                </div>
               </div>
-              <div className={styles.statContent}>
-                <span className={styles.statValue}>22</span>
-                <span className={styles.statLabel}>Casos en seguimiento</span>
-                <span className={styles.statBadgeBlue}>En curso</span>
+            </StaggerItem>
+
+            <StaggerItem>
+              <div
+                className={`${styles.statCard} group cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-blue-300`}
+                onClick={() => openExpandedView("SEGUIMIENTO")}
+              >
+                <div className={`${styles.statIconBox} transition-transform duration-200 group-hover:scale-110`}>
+                  <Target size={26} />
+                </div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    <AnimatedCounter value={22} />
+                  </span>
+                  <span className={styles.statLabel}>Casos en seguimiento</span>
+                  <span className={styles.statBadgeBlue}>En curso</span>
+                </div>
               </div>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
 
           {/* Grid de 3 Columnas: En seguimiento | Resultados y logros | Documentos */}
           <div className={styles.bottomColumnsGrid}>
             
             {/* Columna 1: En seguimiento */}
-            <div className={styles.columnPanel}>
+            <Reveal className={styles.columnPanel} delay={0.08}>
               <div className={styles.columnHeader}>
                 <h3>En seguimiento</h3>
                 <button
@@ -746,11 +816,11 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                 {trackingItems.map((item) => (
                   <div
                     key={item.id}
-                    className={`${styles.trackingItem} cursor-pointer hover:bg-slate-50 transition`}
+                    className={`${styles.trackingItem} group cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:translate-x-1`}
                     onClick={() => openExpandedView("SEGUIMIENTO", item)}
                     title="Haz clic para ver el detalle completo"
                   >
-                    <div className={styles.itemIconBox}>
+                    <div className={`${styles.itemIconBox} transition-transform duration-200 group-hover:scale-110`}>
                       <ShieldCheck size={16} />
                     </div>
                     <div className={styles.itemInfo}>
@@ -765,7 +835,7 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                       </p>
                       <div className={styles.progressBarTrack}>
                         <div
-                          className={styles.progressBarFill}
+                          className={`${styles.progressBarFill} transition-all duration-500`}
                           style={{ width: `${item.progressPercentage ?? 50}%` }}
                         />
                       </div>
@@ -773,10 +843,10 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
 
             {/* Columna 2: Resultados y logros recientes */}
-            <div className={styles.columnPanel}>
+            <Reveal className={styles.columnPanel} delay={0.14}>
               <div className={styles.columnHeader}>
                 <h3>Resultados y logros recientes</h3>
                 <button
@@ -792,12 +862,12 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                 {logroItems.map((item) => (
                   <div
                     key={item.id}
-                    className={`${styles.trackingItem} cursor-pointer hover:bg-slate-50 transition`}
+                    className={`${styles.trackingItem} group cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:translate-x-1`}
                     onClick={() => openExpandedView("LOGROS", item)}
                     title="Haz clic para ver el detalle completo"
                   >
                     <div
-                      className={styles.itemIconBox}
+                      className={`${styles.itemIconBox} transition-transform duration-200 group-hover:scale-110`}
                       style={{ background: "#dcfce7", color: "#16a34a" }}
                     >
                       <Trophy size={16} />
@@ -816,10 +886,10 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
 
             {/* Columna 3: Documentos y acuerdos */}
-            <div className={styles.columnPanel}>
+            <Reveal className={styles.columnPanel} delay={0.2}>
               <div className={styles.columnHeader}>
                 <h3>Documentos y acuerdos</h3>
               </div>
@@ -828,11 +898,11 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                 {documentItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className={`${styles.docItem} cursor-pointer hover:bg-slate-50 transition`}
+                    className={`${styles.docItem} group cursor-pointer transition-all duration-200 hover:bg-slate-50 hover:translate-x-1`}
                     onClick={() => openExpandedView("DOCUMENTOS", item)}
                     title="Haz clic para consultar este documento"
                   >
-                    <FileText size={24} className={styles.docPdfIcon} />
+                    <FileText size={24} className={`${styles.docPdfIcon} transition-transform duration-200 group-hover:scale-110`} />
                     <div className={styles.docInfo}>
                       <span className={styles.docTitle}>{item.title}</span>
                       <span className={styles.docFormat}>
@@ -846,35 +916,37 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
               <button
                 type="button"
                 onClick={() => openExpandedView("DOCUMENTOS")}
-                className={styles.btnRoundedOutline}
+                className={`${styles.btnRoundedOutline} transition-all duration-200 hover:scale-105 active:scale-95`}
                 style={{ justifyContent: "center", width: "100%" }}
               >
                 Ver todos los documentos
                 <ArrowRight size={16} />
               </button>
-            </div>
+            </Reveal>
           </div>
         </section>
 
         {/* ==========================================
             5. CTA BANNER
            ========================================== */}
-        <section className={styles.ctaBanner}>
-          <div className={styles.ctaLeft}>
-            <div className={styles.ctaIconBox}>
-              <Users size={28} />
+        <Reveal delay={0.1} distance={20}>
+          <section className={`${styles.ctaBanner} transition-all duration-300 hover:shadow-xl`}>
+            <div className={styles.ctaLeft}>
+              <div className={styles.ctaIconBox}>
+                <Users size={28} />
+              </div>
+              <div className={styles.ctaText}>
+                <h3>¿Tienes una idea o propuesta?</h3>
+                <p>Tu participación impulsa el cambio.</p>
+              </div>
             </div>
-            <div className={styles.ctaText}>
-              <h3>¿Tienes una idea o propuesta?</h3>
-              <p>Tu participación impulsa el cambio.</p>
-            </div>
-          </div>
 
-          <Link href="/contacto" className={styles.ctaButtonWhite}>
-            Enviar propuesta ahora
-            <ArrowRight size={16} />
-          </Link>
-        </section>
+            <Link href="/contacto" className={`${styles.ctaButtonWhite} transition-all duration-200 hover:scale-105 active:scale-95`}>
+              Enviar propuesta ahora
+              <ArrowRight size={16} />
+            </Link>
+          </section>
+        </Reveal>
       </div>
 
       {/* ==========================================

@@ -92,6 +92,9 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+import { FadeIn, Reveal, StaggerContainer, StaggerItem } from "@/components/motion";
+import { motion, AnimatePresence } from "motion/react";
+
 export default function TestimoniosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Todas las categorías");
   const [sortOrder, setSortOrder] = useState<string>("Más recientes");
@@ -137,19 +140,25 @@ export default function TestimoniosPage() {
         {/* HEADER SECTION */}
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-rose-500">
-              TESTIMONIOS
-            </span>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-fuerza-navy sm:text-4xl">
-              Todas las experiencias que nos inspiran
-            </h1>
-            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-slate-500">
-              Conoce las historias y experiencias de estudiantes que han sido parte del cambio en Fuerza UPT.
-            </p>
+            <FadeIn delay={0.05} direction="up" distance={12}>
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-500">
+                TESTIMONIOS
+              </span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-fuerza-navy sm:text-4xl">
+                Todas las experiencias que nos inspiran
+              </h1>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-slate-500">
+                Conoce las historias y experiencias de estudiantes que han sido parte del cambio en Fuerza UPT.
+              </p>
+            </FadeIn>
           </div>
 
           {/* FILTER CONTROLS */}
-          <div className="flex flex-wrap items-center gap-3">
+          <FadeIn delay={0.25} direction="up" distance={12} className="flex flex-wrap items-center gap-3">
             {/* Category Select Dropdown */}
             <div className="relative">
               <select
@@ -180,11 +189,11 @@ export default function TestimoniosPage() {
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
             </div>
-          </div>
+          </FadeIn>
         </div>
 
         {/* TESTIMONIAL CARDS GRID */}
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StaggerContainer className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
           {filteredTestimonials.map((item) => {
             const isBlue = item.category === "Experiencia";
             const isGreen = item.category === "Intercambio estudiantil";
@@ -200,63 +209,64 @@ export default function TestimoniosPage() {
               : "bg-purple-50 text-purple-700 border-purple-100";
 
             return (
-              <article
-                key={item.id}
-                className="group flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
-              >
-                <div>
-                  {/* Category Pill */}
-                  <div className="flex items-center justify-between">
-                    <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${badgeStyle}`}>
-                      {item.category}
-                    </span>
+              <StaggerItem key={item.id}>
+                <article
+                  className="group flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-xl"
+                >
+                  <div>
+                    {/* Category Pill */}
+                    <div className="flex items-center justify-between">
+                      <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${badgeStyle}`}>
+                        {item.category}
+                      </span>
+                    </div>
+
+                    {/* Author Header */}
+                    <div className="mt-5 flex items-center gap-3.5">
+                      <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0 bg-slate-100 transition-transform duration-200 group-hover:scale-105">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                            {item.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-bold text-slate-900 group-hover:text-fuerza-blue transition-colors">
+                          {item.name}
+                        </h2>
+                        <p className="text-xs text-slate-500">{item.career}</p>
+                      </div>
+                    </div>
+
+                    {/* Quote Body */}
+                    <p className="mt-4 text-xs font-normal leading-relaxed text-slate-600 sm:text-sm">
+                      {item.quote}
+                    </p>
                   </div>
 
-                  {/* Author Header */}
-                  <div className="mt-5 flex items-center gap-3.5">
-                    <div className="relative size-11 overflow-hidden rounded-full border border-slate-100 shadow-xs shrink-0 bg-slate-100">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
-                          {item.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-900 group-hover:text-fuerza-blue transition-colors">
-                        {item.name}
-                      </h2>
-                      <p className="text-xs text-slate-500">{item.career}</p>
-                    </div>
+                  {/* Footer Date & Trigger Link */}
+                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs">
+                    <span className="font-medium text-slate-400">{item.date}</span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveModalItem(item)}
+                      className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-1 cursor-pointer"
+                    >
+                      <span>Ver más</span>
+                      <Play className="size-2.5 fill-blue-600 text-blue-600" />
+                    </button>
                   </div>
-
-                  {/* Quote Body */}
-                  <p className="mt-4 text-xs font-normal leading-relaxed text-slate-600 sm:text-sm">
-                    {item.quote}
-                  </p>
-                </div>
-
-                {/* Footer Date & Trigger Link */}
-                <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs">
-                  <span className="font-medium text-slate-400">{item.date}</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveModalItem(item)}
-                    className="inline-flex items-center gap-1 font-bold text-blue-600 transition hover:text-blue-700 group-hover:translate-x-0.5 cursor-pointer"
-                  >
-                    <span>Ver más</span>
-                    <Play className="size-2.5 fill-blue-600 text-blue-600" />
-                  </button>
-                </div>
-              </article>
+                </article>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
 
         {/* MODAL DETALLE DE TESTIMONIO */}
         {activeModalItem && (
