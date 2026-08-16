@@ -24,6 +24,13 @@ import {
   Wifi,
 } from "lucide-react";
 import type { Event, Project, ProjectStatus } from "@/types";
+import {
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
+import { motion } from "motion/react";
 import styles from "./projects-catalog.module.css";
 
 interface ProjectsCatalogProps {
@@ -98,14 +105,20 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
            ========================================== */}
         <section className={styles.hero}>
           <div className={styles.heroLeft}>
-            <span className={styles.eyebrow}>INICIATIVAS DE LARGO ALCANCE</span>
-            <h1>Proyectos Fuerza UPT</h1>
-            <p className={styles.heroLead}>
-              Diseñamos e implementamos programas con propósito, que generan impacto real en nuestra comunidad universitaria y su entorno.
-            </p>
+            <FadeIn delay={0.05} direction="up" distance={14}>
+              <span className={styles.eyebrow}>INICIATIVAS DE LARGO ALCANCE</span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h1>Proyectos Fuerza UPT</h1>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p className={styles.heroLead}>
+                Diseñamos e implementamos programas con propósito, que generan impacto real en nuestra comunidad universitaria y su entorno.
+              </p>
+            </FadeIn>
 
-            <div className={styles.heroBadgesRow}>
-              <div className={styles.heroBadgeCard}>
+            <StaggerContainer className={styles.heroBadgesRow} staggerDelay={0.08} delayChildren={0.25}>
+              <StaggerItem className={styles.heroBadgeCard}>
                 <div className={styles.heroBadgeIcon}>
                   <Target size={18} />
                 </div>
@@ -113,90 +126,87 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
                   <span className={styles.heroBadgeTitle}>Impacto sostenible</span>
                   <span className={styles.heroBadgeDesc}>Proyectos que dejan huella a mediano y largo plazo.</span>
                 </div>
-              </div>
+              </StaggerItem>
 
-              <div className={styles.heroBadgeCard}>
+              <StaggerItem className={styles.heroBadgeCard}>
                 <div className={styles.heroBadgeIcon}>
                   <Users size={18} />
                 </div>
                 <div className={styles.heroBadgeText}>
-                  <span className={styles.heroBadgeTitle}>Trabajo colaborativo</span>
-                  <span className={styles.heroBadgeDesc}>Alianzas estratégicas dentro y fuera de la universidad.</span>
+                  <span className={styles.heroBadgeTitle}>Enfoque colaborativo</span>
+                  <span className={styles.heroBadgeDesc}>Trabajo conjunto con autoridades y aliados.</span>
                 </div>
-              </div>
+              </StaggerItem>
 
-              <div className={styles.heroBadgeCard}>
+              <StaggerItem className={styles.heroBadgeCard}>
                 <div className={styles.heroBadgeIcon}>
-                  <TrendingUp size={18} />
+                  <ShieldCheck size={18} />
                 </div>
                 <div className={styles.heroBadgeText}>
-                  <span className={styles.heroBadgeTitle}>Transparencia y gestión</span>
-                  <span className={styles.heroBadgeDesc}>Seguimiento constante y rendición de cuentas.</span>
+                  <span className={styles.heroBadgeTitle}>Transparencia total</span>
+                  <span className={styles.heroBadgeDesc}>Seguimiento claro y accesible para todos.</span>
                 </div>
-              </div>
-            </div>
+              </StaggerItem>
+            </StaggerContainer>
           </div>
 
           <div className={styles.heroRight}>
-            <Image
-              src="/images/hero-projects-illustration.png"
-              alt="Ilustración de equipo de proyectos Fuerza UPT"
-              fill
-              priority
-              className={styles.heroIllustration}
-              sizes="340px"
-            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className={styles.heroVisualCard}
+            >
+              <div className={styles.visualImageWrapper}>
+                <Image
+                  src="/images/hero-equipo.png"
+                  alt="Proyectos Fuerza UPT"
+                  fill
+                  priority
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 480px"
+                />
+              </div>
+
+              <div className={styles.heroStatsFloating}>
+                <div className={styles.statFloatingItem}>
+                  <span className={styles.statFloatingNum}>+15</span>
+                  <span className={styles.statFloatingLabel}>Iniciativas</span>
+                </div>
+                <div className={styles.statDivider} />
+                <div className={styles.statFloatingItem}>
+                  <span className={styles.statFloatingNum}>100%</span>
+                  <span className={styles.statFloatingLabel}>Compromiso</span>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
         {/* ==========================================
-            2. 4 FEATURE CARDS ROW
+            2. SUMMARY HIGHLIGHT STRIP
            ========================================== */}
-        <section className={styles.featureCardsGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.featureIconBox}>
-              <Users size={22} />
+        <section className={styles.summaryStrip}>
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryIcon}>
+              <Sparkles size={20} />
             </div>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Iniciativas reales</span>
-              <p className={styles.featureDesc}>
-                Proyectos en marcha que responden a necesidades reales de nuestra comunidad.
+            <div className={styles.summaryContent}>
+              <span className={styles.summaryTitle}>Acción con propósito</span>
+              <p className={styles.summaryDesc}>
+                Cada proyecto responde a una necesidad real identificada por los propios estudiantes de la UPT.
               </p>
             </div>
           </div>
 
-          <div className={styles.featureCard}>
-            <div className={styles.featureIconBox}>
-              <GraduationCap size={22} />
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryIcon}>
+              <TrendingUp size={20} />
             </div>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Formación integral</span>
-              <p className={styles.featureDesc}>
-                Promueven el desarrollo académico, social y personal de los estudiantes.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.featureCard}>
-            <div className={styles.featureIconBox}>
-              <Globe2 size={22} />
-            </div>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Compromiso territorial</span>
-              <p className={styles.featureDesc}>
-                Trabajamos en y para nuestras comunidades aliadas.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.featureCard}>
-            <div className={styles.featureIconBox}>
-              <ShieldCheck size={22} />
-            </div>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Gestión responsable</span>
-              <p className={styles.featureDesc}>
-                Cada proyecto cuenta con objetivos claros y procesos de evaluación.
+            <div className={styles.summaryContent}>
+              <span className={styles.summaryTitle}>Resultados medibles</span>
+              <p className={styles.summaryDesc}>
+                Monitoreamos indicadores claros para asegurar que cada esfuerzo logre su objetivo propuesto.
               </p>
             </div>
           </div>
@@ -225,48 +235,49 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
             4. PROJECT CARDS LIST
            ========================================== */}
         <section className={styles.projectList}>
-          {displayList.map((project) => {
+          {displayList.map((project, idx) => {
             const targetUrl = `/proyectos/${project.slug ?? project.id}`;
             const isSecond = project.id === "proj-2" || project.title.toLowerCase().includes("abrigando");
 
             return (
-              <article className={styles.projectCard} key={project.id}>
-                {/* Left Column: Image Poster */}
-                <div className={styles.posterColumn}>
-                  <Image
-                    src={project.coverImage ?? "/images/hero-equipo.png"}
-                    alt={project.title}
-                    fill
-                    className={styles.posterImage}
-                    sizes="(max-width: 1024px) 100vw, 450px"
-                  />
-                  <div className={styles.posterGradientOverlay}>
-                    <span className={styles.statusBadgeGreen}>
-                      {statusLabels[project.projectStatus] ?? "EN EJECUCIÓN"}
-                    </span>
-
-                    <div className={styles.posterTextGroup}>
-                      <h2 className={styles.posterTitle}>{project.title}</h2>
-                      <span className={styles.posterSummary}>
-                        {project.category || project.summary || "Proyecto institucional"}
+              <Reveal key={project.id} delay={idx * 0.08} distance={20} className="w-full">
+                <article className={`${styles.projectCard} group transition-all duration-300 hover:shadow-xl`}>
+                  {/* Left Column: Image Poster */}
+                  <div className={`${styles.posterColumn} overflow-hidden`}>
+                    <Image
+                      src={project.coverImage ?? "/images/hero-equipo.png"}
+                      alt={project.title}
+                      fill
+                      className={`${styles.posterImage} transition-transform duration-500 ease-out group-hover:scale-105`}
+                      sizes="(max-width: 1024px) 100vw, 450px"
+                    />
+                    <div className={styles.posterGradientOverlay}>
+                      <span className={styles.statusBadgeGreen}>
+                        {statusLabels[project.projectStatus] ?? "EN EJECUCIÓN"}
                       </span>
+
+                      <div className={styles.posterTextGroup}>
+                        <h2 className={styles.posterTitle}>{project.title}</h2>
+                        <span className={styles.posterSummary}>
+                          {project.category || project.summary || "Proyecto institucional"}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Right Column: Details & Metadata */}
-                <div className={styles.detailsColumn}>
-                  {/* 4 Metadata Cards */}
-                  <div className={styles.factsGrid}>
-                    <div className={styles.factCard}>
-                      <div className={styles.factHeader}>
-                        <CalendarDays size={14} />
-                        <span className={styles.factLabel}>PERIODO</span>
+                  {/* Right Column: Details & Metadata */}
+                  <div className={styles.detailsColumn}>
+                    {/* 4 Metadata Cards */}
+                    <div className={styles.factsGrid}>
+                      <div className={styles.factCard}>
+                        <div className={styles.factHeader}>
+                          <CalendarDays size={14} />
+                          <span className={styles.factLabel}>PERIODO</span>
+                        </div>
+                        <span className={styles.factValue}>
+                          {project.startDate ?? "2026-08-04"} - {project.endDate ?? "Sin cierre definido"}
+                        </span>
                       </div>
-                      <span className={styles.factValue}>
-                        {project.startDate ?? "2026-08-04"} - {project.endDate ?? "Sin cierre definido"}
-                      </span>
-                    </div>
 
                     <div className={styles.factCard}>
                       <div className={styles.factHeader}>
@@ -360,15 +371,16 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
                   </div>
 
                   {/* Button */}
-                  <Link href={targetUrl} className={styles.btnFullPrimary}>
+                  <Link href={targetUrl} className={`${styles.btnFullPrimary} group/btn transition-all duration-200 hover:scale-[1.01]`}>
                     Ver detalles
-                    <ArrowRight size={16} />
+                    <ArrowRight size={16} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
                   </Link>
                 </div>
               </article>
-            );
-          })}
-        </section>
+            </Reveal>
+          );
+        })}
+      </section>
 
         {/* ==========================================
             5. CTA BANNER

@@ -20,6 +20,13 @@ import {
 } from "lucide-react";
 import { getAdminDashboard } from "@/services/admin/dashboard-service";
 import type { AdminDashboardData } from "@/types/admin-workflows";
+import {
+  AnimatedCounter,
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
 
 // Daily sample points for "Visitas por fecha" chart
 const dailyVisitData = [
@@ -148,77 +155,97 @@ export function AdminDashboard() {
         </div>
       ) : null}
 
-      {/* 1. TOP 5 METRIC CARDS ROW */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* 1. TOP 5 METRIC CARDS ROW WITH ANIMATED COUNTER */}
+      <StaggerContainer className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" staggerDelay={0.06}>
         {/* Card 1: Visitas del período */}
-        <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-fuerza-blue transition group-hover:bg-fuerza-blue group-hover:text-white">
-              <TrendingUp className="size-5" />
+        <StaggerItem>
+          <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-fuerza-blue transition-colors group-hover:bg-fuerza-blue group-hover:text-white">
+                <TrendingUp className="size-5" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs font-semibold text-slate-500">Visitas del período</p>
+            <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">
+              <AnimatedCounter value={4892} />
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+              <span>↑ 18.6%</span>
+              <span className="font-normal text-slate-400">vs. período anterior</span>
             </div>
           </div>
-          <p className="mt-4 text-xs font-semibold text-slate-500">Visitas del período</p>
-          <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">4,892</p>
-          <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <span>↑ 18.6%</span>
-            <span className="font-normal text-slate-400">vs. período anterior</span>
-          </div>
-        </div>
+        </StaggerItem>
 
         {/* Card 2: Visitantes únicos */}
-        <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition group-hover:bg-purple-600 group-hover:text-white">
-              <Users className="size-5" />
+        <StaggerItem>
+          <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white">
+                <Users className="size-5" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs font-semibold text-slate-500">Visitantes únicos</p>
+            <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">
+              <AnimatedCounter value={2351} />
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+              <span>↑ 16.3%</span>
+              <span className="font-normal text-slate-400">vs. período anterior</span>
             </div>
           </div>
-          <p className="mt-4 text-xs font-semibold text-slate-500">Visitantes únicos</p>
-          <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">2,351</p>
-          <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <span>↑ 16.3%</span>
-            <span className="font-normal text-slate-400">vs. período anterior</span>
-          </div>
-        </div>
+        </StaggerItem>
 
         {/* Card 3: Interacciones */}
-        <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition group-hover:bg-emerald-600 group-hover:text-white">
-              <MessageSquare className="size-5" />
+        <StaggerItem>
+          <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
+                <MessageSquare className="size-5" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs font-semibold text-slate-500">Interacciones</p>
+            <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">
+              <AnimatedCounter value={1284} />
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+              <span>↑ 22.1%</span>
+              <span className="font-normal text-slate-400">vs. período anterior</span>
             </div>
           </div>
-          <p className="mt-4 text-xs font-semibold text-slate-500">Interacciones</p>
-          <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">1,284</p>
-          <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <span>↑ 22.1%</span>
-            <span className="font-normal text-slate-400">vs. período anterior</span>
-          </div>
-        </div>
+        </StaggerItem>
 
-        {/* Card 4: Publicaciones activas (REAL DATA) */}
-        <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition group-hover:bg-amber-500 group-hover:text-white">
-              <FileText className="size-5" />
+        {/* Card 4: Publicaciones activas */}
+        <StaggerItem>
+          <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-500 group-hover:text-white">
+                <FileText className="size-5" />
+              </div>
             </div>
+            <p className="mt-4 text-xs font-semibold text-slate-500">Publicaciones activas</p>
+            <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">
+              <AnimatedCounter value={activePublications} />
+            </p>
+            <p className="mt-3 text-xs text-slate-400">Contenido visible en el sitio</p>
           </div>
-          <p className="mt-4 text-xs font-semibold text-slate-500">Publicaciones activas</p>
-          <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">{activePublications}</p>
-          <p className="mt-3 text-xs text-slate-400">Contenido visible en el sitio</p>
-        </div>
+        </StaggerItem>
 
-        {/* Card 5: Formularios recibidos (REAL DATA) */}
-        <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition group-hover:bg-sky-500 group-hover:text-white">
-              <Mail className="size-5" />
+        {/* Card 5: Formularios recibidos */}
+        <StaggerItem>
+          <div className="group rounded-2xl border border-fuerza-border bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition-colors group-hover:bg-sky-500 group-hover:text-white">
+                <Mail className="size-5" />
+              </div>
             </div>
+            <p className="mt-4 text-xs font-semibold text-slate-500">Formularios recibidos</p>
+            <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">
+              <AnimatedCounter value={receivedForms} />
+            </p>
+            <p className="mt-3 text-xs text-slate-400">Contacto, únete y otros</p>
           </div>
-          <p className="mt-4 text-xs font-semibold text-slate-500">Formularios recibidos</p>
-          <p className="mt-1 text-3xl font-extrabold text-fuerza-navy">{receivedForms}</p>
-          <p className="mt-3 text-xs text-slate-400">Contacto, únete y otros</p>
-        </div>
-      </div>
+        </StaggerItem>
+      </StaggerContainer>
 
       {/* 2. MIDDLE SECTION: MAIN CHART & PERIOD SUMMARY */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">

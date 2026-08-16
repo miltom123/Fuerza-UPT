@@ -24,6 +24,12 @@ import {
 } from "lucide-react";
 import { parseApiDate } from "@/lib/date";
 import type { Opportunity, OpportunityType } from "@/types";
+import {
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
 import styles from "./opportunities-catalog.module.css";
 
 interface OpportunitiesCatalogProps {
@@ -202,31 +208,41 @@ function formatDate(value?: string) {
   return new Intl.DateTimeFormat("es-PE", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 }
 
-export function OpportunitiesCatalog({ opportunities }: OpportunitiesCatalogProps) {
+export function OpportunitiesCatalog({
+  opportunities,
+}: OpportunitiesCatalogProps) {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
 
-  // Merge backend data with sample fallback data so design is always filled nicely
-  const displayList = opportunities.length >= 3 ? opportunities : [...opportunities, ...sampleOpportunities];
-  const featuredList = displayList.filter((item) => item.featured).slice(0, 3);
+  const displayList =
+    opportunities.length > 0 ? opportunities : sampleOpportunities;
+
+  const featuredList = displayList.filter((o) => o.featured || o.opportunityType === "CALL");
 
   return (
-    <section className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.shell}>
-        {/* Hero Banner */}
+        {/* Header Hero */}
         <header className={styles.hero}>
-          <div className={styles.heroContent}>
-            <p className={styles.eyebrow}>CONVOCATORIAS Y BENEFICIOS</p>
-            <h1>Becas y oportunidades</h1>
-            <div className={styles.heroDivider} />
-            <p>
-              Programas, intercambios y convocatorias con información separada de los eventos para apoyar tu crecimiento académico, profesional y personal.
-            </p>
+          <div className={styles.heroLeft}>
+            <FadeIn delay={0.05} direction="up" distance={12}>
+              <span className={styles.eyebrow}>OPORTUNIDADES PARA EL ESTUDIANTE</span>
+            </FadeIn>
+            <FadeIn delay={0.12} direction="up" distance={16}>
+              <h1>Becas y oportunidades</h1>
+            </FadeIn>
+            <FadeIn delay={0.2} direction="up" distance={16}>
+              <p>
+                Impulsamos tu desarrollo académico y profesional conectándote con becas,
+                programas de intercambio, pasantías y convocatorias oficiales.
+              </p>
+            </FadeIn>
           </div>
-          <div className={styles.heroMedia}>
+          <div className={`${styles.heroRight} overflow-hidden rounded-3xl`}>
             <Image
               src="/images/hero-equipo.png"
-              alt="Estudiantes UPT"
+              alt="Estudiantes en el campus de la UPT"
               fill
+              className="object-cover transition-transform duration-700 hover:scale-105"
               sizes="(max-width: 900px) 100vw, 50vw"
               priority
             />
@@ -235,68 +251,73 @@ export function OpportunitiesCatalog({ opportunities }: OpportunitiesCatalogProp
 
         {/* Section 1: Explora oportunidades */}
         <section>
-          <div className={styles.sectionHeader} style={{ marginBottom: "20px" }}>
-            <div className={styles.sectionTitleGroup}>
-              <div className={styles.sectionIcon}>
-                <Sparkles size={22} />
-              </div>
-              <div className={styles.sectionText}>
-                <h2>Explora oportunidades para tu crecimiento</h2>
-                <p>Becas, intercambios, programas y convocatorias actualizadas para la comunidad universitaria.</p>
+          <Reveal delay={0.05} distance={16}>
+            <div className={styles.sectionHeader} style={{ marginBottom: "20px" }}>
+              <div className={styles.sectionTitleGroup}>
+                <div className={styles.sectionIcon}>
+                  <Sparkles size={22} />
+                </div>
+                <div className={styles.sectionText}>
+                  <h2>Explora oportunidades para tu crecimiento</h2>
+                  <p>Becas, intercambios, programas y convocatorias actualizadas para la comunidad universitaria.</p>
+                </div>
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          <div className={styles.grid}>
+          <StaggerContainer className={styles.grid} staggerDelay={0.07}>
             {displayList.map((opportunity) => {
               const config = typeConfig[opportunity.opportunityType] || typeConfig.SCHOLARSHIP;
               const IconComponent = config.icon;
 
               return (
-                <article className={styles.card} key={opportunity.id}>
-                  <div className={styles.cardCover}>
-                    <Image
-                      src={opportunity.coverImage ?? "/images/hero-equipo.png"}
-                      alt={opportunity.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
-                    />
-                    <span className={`${styles.typeBadge} ${config.badgeClass}`}>{config.label}</span>
-                    <div className={`${styles.floatingIcon} ${config.iconClass}`}>
-                      <IconComponent size={20} />
-                    </div>
-                  </div>
-
-                  <div className={styles.cardBody}>
-                    <h3>{opportunity.title}</h3>
-                    <p>{opportunity.description}</p>
-
-                    <div className={styles.metaList}>
-                      <div className={styles.metaItem}>
-                        <CalendarDays />
-                        <span>Cierre: {formatDate(opportunity.deadline)}</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <Laptop />
-                        <span>Modalidad: {opportunity.countryOrModality ?? "Presencial"}</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <User />
-                        <span>Dirigido a: Estudiantes UPT</span>
+                <StaggerItem key={opportunity.id}>
+                  <article className={`${styles.card} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}>
+                    <div className={`${styles.cardCover} overflow-hidden`}>
+                      <Image
+                        src={opportunity.coverImage ?? "/images/hero-equipo.png"}
+                        alt={opportunity.title}
+                        fill
+                        className="transition-transform duration-500 ease-out group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 900px) 50vw, 33vw"
+                      />
+                      <span className={`${styles.typeBadge} ${config.badgeClass}`}>{config.label}</span>
+                      <div className={`${styles.floatingIcon} ${config.iconClass} transition-transform duration-200 group-hover:scale-110`}>
+                        <IconComponent size={20} />
                       </div>
                     </div>
 
-                    <button
-                      className={styles.detailsBtn}
-                      onClick={() => setSelectedOpportunity(opportunity)}
-                    >
-                      Ver detalles <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </article>
+                    <div className={styles.cardBody}>
+                      <h3>{opportunity.title}</h3>
+                      <p>{opportunity.description}</p>
+
+                      <div className={styles.metaList}>
+                        <div className={styles.metaItem}>
+                          <CalendarDays />
+                          <span>Cierre: {formatDate(opportunity.deadline)}</span>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <Laptop />
+                          <span>Modalidad: {opportunity.countryOrModality ?? "Presencial"}</span>
+                        </div>
+                        <div className={styles.metaItem}>
+                          <User />
+                          <span>Dirigido a: Estudiantes UPT</span>
+                        </div>
+                      </div>
+
+                      <button
+                        className={`${styles.detailsBtn} group/btn transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]`}
+                        onClick={() => setSelectedOpportunity(opportunity)}
+                      >
+                        Ver detalles <ArrowRight size={14} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
+                      </button>
+                    </div>
+                  </article>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerContainer>
         </section>
 
         {/* Section 2: Convocatorias destacadas */}
@@ -447,6 +468,6 @@ export function OpportunitiesCatalog({ opportunities }: OpportunitiesCatalogProp
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }

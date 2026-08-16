@@ -31,6 +31,13 @@ function formatDate(startDate: string, endDate?: string) {
   return parsedEnd ? `${start} - ${formatter.format(parsedEnd)}` : start;
 }
 
+import {
+  FadeIn,
+  Reveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
+
 export function EventsCatalog({ events }: EventsCatalogProps) {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -49,36 +56,69 @@ export function EventsCatalog({ events }: EventsCatalogProps) {
     <section className={styles.page}>
       <div className={styles.shell}>
         <header className={styles.hero}>
-          <p className={styles.eyebrow}>Agenda Fuerza UPT</p>
-          <h1>Eventos y actividades</h1>
-          <p>Talleres, conversatorios, encuentros deportivos y sesiones con fecha definida.</p>
+          <FadeIn delay={0.05} direction="up" distance={12}>
+            <p className={styles.eyebrow}>Agenda Fuerza UPT</p>
+          </FadeIn>
+          <FadeIn delay={0.12} direction="up" distance={16}>
+            <h1>Eventos y actividades</h1>
+          </FadeIn>
+          <FadeIn delay={0.2} direction="up" distance={16}>
+            <p>Talleres, conversatorios, encuentros deportivos y sesiones con fecha definida.</p>
+          </FadeIn>
         </header>
-        <div className={styles.summaryBar}>
-          <span><strong>{events.length}</strong> eventos publicados</span>
-          <span><strong>{events.filter((event) => event.registrationEnabled).length}</strong> con inscripción activa</span>
-        </div>
-        <div className={styles.grid}>
+
+        <FadeIn delay={0.25} direction="up" distance={10}>
+          <div className={styles.summaryBar}>
+            <span><strong>{events.length}</strong> eventos publicados</span>
+            <span><strong>{events.filter((event) => event.registrationEnabled).length}</strong> con inscripción activa</span>
+          </div>
+        </FadeIn>
+
+        <StaggerContainer className={styles.grid} staggerDelay={0.07}>
           {events.map((event) => (
-            <article className={styles.card} key={event.id}>
-              <div className={styles.cover}>
-                <Image src={event.coverImage ?? "/images/hero-equipo.png"} alt="" fill sizes="(max-width: 620px) 100vw, (max-width: 900px) 50vw, 33vw" />
-                <div className={styles.coverLabel}><span className={styles.categoryBadge}>{event.category}</span><span className={styles.statusBadge}>{statusLabels[event.eventStatus]}</span></div>
-              </div>
-              <div className={styles.body}>
-                <h2>{event.title}</h2><p>{event.summary}</p>
-                <div className={styles.meta}>
-                  <span><CalendarDays aria-hidden="true" />{formatDate(event.startDate, event.endDate)}</span>
-                  <span>{event.modality === "ONLINE" ? <Monitor aria-hidden="true" /> : <MapPin aria-hidden="true" />}{modalityLabels[event.modality]}{event.location ? ` · ${event.location}` : ""}</span>
-                  <span><UserRound aria-hidden="true" />{event.organizer}</span>
+            <StaggerItem key={event.id}>
+              <article className={`${styles.card} group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl`}>
+                <div className={`${styles.cover} overflow-hidden`}>
+                  <Image
+                    src={event.coverImage ?? "/images/hero-equipo.png"}
+                    alt=""
+                    fill
+                    className="transition-transform duration-500 ease-out group-hover:scale-105"
+                    sizes="(max-width: 620px) 100vw, (max-width: 900px) 50vw, 33vw"
+                  />
+                  <div className={styles.coverLabel}>
+                    <span className={styles.categoryBadge}>{event.category}</span>
+                    <span className={styles.statusBadge}>{statusLabels[event.eventStatus]}</span>
+                  </div>
                 </div>
-                <div className={styles.actions}>
-                  <button type="button" className={styles.primary} onClick={() => setSelectedEvent(event)}>Ver detalles <ArrowRight aria-hidden="true" /></button>
-                  {event.registrationEnabled && event.registrationUrl ? <Link className={styles.secondary} href={event.registrationUrl} target="_blank" rel="noreferrer">Inscribirme</Link> : null}
+                <div className={styles.body}>
+                  <h2>{event.title}</h2>
+                  <p>{event.summary}</p>
+                  <div className={styles.meta}>
+                    <span><CalendarDays aria-hidden="true" />{formatDate(event.startDate, event.endDate)}</span>
+                    <span>{event.modality === "ONLINE" ? <Monitor aria-hidden="true" /> : <MapPin aria-hidden="true" />}{modalityLabels[event.modality]}{event.location ? ` · ${event.location}` : ""}</span>
+                    <span><UserRound aria-hidden="true" />{event.organizer}</span>
+                  </div>
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      className={`${styles.primary} group/btn transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]`}
+                      onClick={() => setSelectedEvent(event)}
+                    >
+                      Ver detalles
+                      <ArrowRight className="size-4 transition-transform duration-200 group-hover/btn:translate-x-1" aria-hidden="true" />
+                    </button>
+                    {event.registrationEnabled && event.registrationUrl ? (
+                      <Link className={`${styles.secondary} transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]`} href={event.registrationUrl} target="_blank" rel="noreferrer">
+                        Inscribirme
+                      </Link>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
       <EventDetailModal
         event={selectedEvent}
