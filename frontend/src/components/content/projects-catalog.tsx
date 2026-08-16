@@ -152,36 +152,7 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
         </section>
 
         {/* ==========================================
-            2. SUMMARY HIGHLIGHT STRIP
-           ========================================== */}
-        <section className={styles.summaryStrip}>
-          <div className={styles.summaryCard}>
-            <div className={styles.summaryIcon}>
-              <Sparkles size={20} />
-            </div>
-            <div className={styles.summaryContent}>
-              <span className={styles.summaryTitle}>Acción con propósito</span>
-              <p className={styles.summaryDesc}>
-                Cada proyecto responde a una necesidad real identificada por los propios estudiantes de la UPT.
-              </p>
-            </div>
-          </div>
-
-          <div className={styles.summaryCard}>
-            <div className={styles.summaryIcon}>
-              <TrendingUp size={20} />
-            </div>
-            <div className={styles.summaryContent}>
-              <span className={styles.summaryTitle}>Resultados medibles</span>
-              <p className={styles.summaryDesc}>
-                Monitoreamos indicadores claros para asegurar que cada esfuerzo logre su objetivo propuesto.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================
-            3. CONTROLS BAR (COUNT + FILTER)
+            2. CONTROLS BAR (COUNT + FILTER)
            ========================================== */}
         <div className={styles.controlsBar}>
           <span className={styles.projectCount}>
