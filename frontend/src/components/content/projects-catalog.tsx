@@ -95,7 +95,7 @@ const sampleProjects: Project[] = [
 export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
   const [filterSort, setFilterSort] = useState("recent");
 
-  const displayList = projects.length >= 2 ? projects : [...projects, ...sampleProjects];
+  const displayList = projects;
 
   return (
     <div className={styles.page}>
@@ -148,38 +148,6 @@ export function ProjectsCatalog({ projects, events }: ProjectsCatalogProps) {
                 </div>
               </StaggerItem>
             </StaggerContainer>
-          </div>
-
-          <div className={styles.heroRight}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className={styles.heroVisualCard}
-            >
-              <div className={styles.visualImageWrapper}>
-                <Image
-                  src="/images/hero-equipo.png"
-                  alt="Proyectos Fuerza UPT"
-                  fill
-                  priority
-                  className="object-cover transition-transform duration-500 hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 480px"
-                />
-              </div>
-
-              <div className={styles.heroStatsFloating}>
-                <div className={styles.statFloatingItem}>
-                  <span className={styles.statFloatingNum}>+15</span>
-                  <span className={styles.statFloatingLabel}>Iniciativas</span>
-                </div>
-                <div className={styles.statDivider} />
-                <div className={styles.statFloatingItem}>
-                  <span className={styles.statFloatingNum}>100%</span>
-                  <span className={styles.statFloatingLabel}>Compromiso</span>
-                </div>
-              </div>
-            </motion.div>
           </div>
         </section>
 
