@@ -133,13 +133,37 @@
   width: 100%;
 }
 
+.dotGrid {
+  position: absolute;
+  top: -24px;
+  left: -40px;
+  width: 140px;
+  height: 140px;
+  background-image: radial-gradient(#cbd5e1 1.8px, transparent 1.8px);
+  background-size: 16px 16px;
+  z-index: 1;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.waveLines {
+  position: absolute;
+  bottom: -40px;
+  left: -80px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, transparent 40%, rgba(203, 213, 225, 0.4) 41%, transparent 42%, transparent 55%, rgba(203, 213, 225, 0.35) 56%, transparent 57%, transparent 70%, rgba(203, 213, 225, 0.3) 71%, transparent 72%);
+  z-index: 1;
+  pointer-events: none;
+}
+
 .heroImageWrapper {
   position: relative;
   width: 100%;
-  height: 480px;
-  border-radius: 36px;
+  height: 520px;
+  clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 54%);
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.12));
 }
 
 .heroImage {
@@ -151,60 +175,62 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 160px;
-  height: 240px;
+  width: 200px;
+  height: 280px;
   background: #f43f5e;
-  border-bottom-left-radius: 120px;
+  border-bottom-left-radius: 160px;
   z-index: 1;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .quoteCard {
   position: absolute;
   bottom: 24px;
-  right: -16px;
-  width: min(340px, 90%);
-  background: #0d1b2a;
-  border-radius: 24px;
-  padding: 24px 28px;
-  box-shadow: 0 24px 48px rgba(11, 26, 48, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  right: -12px;
+  width: min(350px, 92%);
+  background: #0b1728;
+  border-radius: 26px;
+  padding: 26px 28px;
+  box-shadow: 0 24px 50px rgba(11, 23, 40, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   z-index: 10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .quoteIcon {
   color: #f43f5e;
-  font-size: 38px;
-  line-height: 1;
+  font-size: 42px;
+  line-height: 0.8;
   font-weight: 900;
-  margin-bottom: -4px;
+  margin-bottom: 2px;
 }
 
 .quoteText {
   color: #ffffff;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .quoteMeta {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   margin-top: 4px;
 }
 
 .quoteAuthor {
   color: #ffffff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
 }
 
 .quoteRole {
-  color: #93c5fd;
-  font-size: 11.5px;
+  color: #7dd3fc;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -213,21 +239,24 @@
   gap: 6px;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .dot {
   width: 6px;
   height: 6px;
   border-radius: 9999px;
-  background-color: #64748b;
-  transition: all 0.2s ease;
+  background-color: #ffffff;
+  opacity: 0.4;
+  transition: all 0.3s ease;
 }
 
 .dotActive {
   background-color: #f43f5e;
-  width: 16px;
+  width: 18px;
+  height: 6px;
   border-radius: 9999px;
+  opacity: 1;
 }
 
 /* ==========================================================================

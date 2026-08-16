@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -376,6 +376,33 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
     return defaultTestimonials;
   }, [stories]);
 
+  // Automatic rotation every 10 seconds
+  useEffect(() => {
+    if (!quotes || quotes.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveQuoteIndex((prev) => {
+        // pick random other quote or next in cycle
+        let next = (prev + 1) % quotes.length;
+        return next;
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [quotes]);
+
+  // Automatic rotation for testimonial cards every 10 seconds
+  useEffect(() => {
+    if (!displayStories || displayStories.length <= 3) return;
+    const interval = setInterval(() => {
+      setActiveTestimonialPage((prev) => {
+        const totalPages = Math.ceil(displayStories.length / 3);
+        return (prev + 1) % totalPages;
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [displayStories]);
+
   const safeQuoteIndex = activeQuoteIndex % (quotes.length || 1);
 
   return (
@@ -413,6 +440,10 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
           </div>
 
           <div className={styles.heroRight}>
+            {/* Decorative background grid and waves */}
+            <div className={styles.dotGrid} />
+            <div className={styles.waveLines} />
+
             <div className={styles.heroImageWrapper}>
               <div className={styles.heroRedCurve} />
               <Image
