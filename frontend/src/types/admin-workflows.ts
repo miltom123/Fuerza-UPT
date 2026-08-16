@@ -9,12 +9,34 @@ export interface AdminAuditItem {
   requestId?: string;
 }
 
+export interface DailyVisitStat {
+  date: string;
+  label: string;
+  visits: number;
+  uniqueVisitors: number;
+}
+
+export interface SubmissionsSummary {
+  contactMessages: number;
+  teamApplications: number;
+  studentProposals: number;
+  newsletterSubscriptions: number;
+  eventRegistrations: number;
+  total: number;
+}
+
 export interface AdminDashboardData {
-  content: Record<string, number>;
-  drafts: number;
+  visits: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  interactions: number;
   published: number;
+  drafts: number;
   archived: number;
   pendingSubmissions: number;
+  dailyVisits: DailyVisitStat[];
+  submissionsSummary: SubmissionsSummary;
+  content: Record<string, number>;
   recentActivity: AdminAuditItem[];
 }
 

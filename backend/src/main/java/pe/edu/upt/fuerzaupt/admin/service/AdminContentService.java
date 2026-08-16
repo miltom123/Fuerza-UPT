@@ -20,6 +20,8 @@ import pe.edu.upt.fuerzaupt.event.entity.Event;
 import pe.edu.upt.fuerzaupt.event.model.RegistrationMode;
 import pe.edu.upt.fuerzaupt.event.repository.EventRepository;
 import pe.edu.upt.fuerzaupt.opportunity.entity.Opportunity;
+import pe.edu.upt.fuerzaupt.opportunity.entity.OpportunityBenefit;
+import pe.edu.upt.fuerzaupt.opportunity.entity.OpportunityRequirement;
 import pe.edu.upt.fuerzaupt.opportunity.repository.OpportunityRepository;
 import pe.edu.upt.fuerzaupt.project.entity.Project;
 import pe.edu.upt.fuerzaupt.project.repository.ProjectRepository;

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pe.edu.upt.fuerzaupt.event.entity.EventRegistration;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, UUID> {
@@ -19,4 +20,6 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
     Page<EventRegistration> findAllByStatusOrderByRegisteredAtDesc(String status, Pageable pageable);
 
     long countByStatus(String status);
+
+    long countByRegisteredAtGreaterThanEqualAndRegisteredAtLessThan(Instant start, Instant end);
 }

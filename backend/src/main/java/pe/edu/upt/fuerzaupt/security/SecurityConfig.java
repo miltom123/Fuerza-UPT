@@ -93,7 +93,8 @@ public class SecurityConfig {
                         "/api/postulaciones-equipo",
                         "/api/suscripciones",
                         "/api/eventos/*/inscripciones",
-                        "/api/encuestas/*/respuestas"
+                        "/api/encuestas/*/respuestas",
+                        "/api/analytics/track"
                 )
             )
 
@@ -142,7 +143,8 @@ public class SecurityConfig {
                         "/api/postulaciones-equipo",
                         "/api/suscripciones",
                         "/api/eventos/*/inscripciones",
-                        "/api/encuestas/*/respuestas"
+                        "/api/encuestas/*/respuestas",
+                        "/api/analytics/track"
                 ).permitAll()
                 .requestMatchers("/api/auth/me", "/api/auth/logout").authenticated()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
