@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -14,12 +14,23 @@ import {
   Play,
   Sparkles,
   Star,
+  UploadCloud,
   User,
   Users,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { mediaAdminService } from "@/services/admin/media-admin-service";
 import type { StoryAdminRequest, StoryAdminResponse } from "@/types/story";
+
+const PRESET_AVATARS = [
+  { name: "Valeria Sánchez", role: "Psicología", url: "/images/valeria-sanchez.png" },
+  { name: "José Rojas", role: "Ing. Civil", url: "/images/jose-rojas.png" },
+  { name: "Andrea Flores", role: "Arquitectura", url: "/images/andrea-flores.png" },
+  { name: "Estudiante Hero", role: "Ing. Sistemas", url: "/images/hero-student.png" },
+  { name: "Yenny Chambilla", role: "Presidenta", url: "/images/presidenta.jpg" },
+  { name: "Equipo Fuerza UPT", role: "Comunidad", url: "/images/fuerza-upt-equipo.jpg" },
+];
 
 interface StoryEditorModalProps {
   story?: StoryAdminResponse | null;
@@ -48,6 +59,9 @@ export function StoryEditorModal({
 
   const [activeTab, setActiveTab] = useState<"EDIT" | "PREVIEW">("EDIT");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (story) {
@@ -81,6 +95,27 @@ export function StoryEditorModal({
 
   if (!isOpen) return null;
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      setUploadError(null);
+      const res = await mediaAdminService.upload(file, false);
+      const uploadedUrl = res.url;
+      if (uploadedUrl) {
+        setFormData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al subir la imagen";
+      setUploadError(msg);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.authorName.trim() || !formData.authorCareer.trim() || !formData.quote.trim()) {
@@ -95,28 +130,9 @@ export function StoryEditorModal({
     }
   };
 
-  const getBadgeStyle = (cat: string) => {
-    switch (cat) {
-      case "Experiencia":
-        return "bg-blue-50 text-blue-700 border-blue-200/80";
-      case "Liderazgo":
-        return "bg-purple-50 text-purple-700 border-purple-200/80";
-      case "Comunidad":
-        return "bg-indigo-50 text-indigo-700 border-indigo-200/80";
-      case "Intercambio estudiantil":
-        return "bg-amber-50 text-amber-700 border-amber-200/80";
-      case "Beca":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200/80";
-      case "Proyecto":
-        return "bg-rose-50 text-rose-700 border-rose-200/80";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/80">
+      <div className="relative flex flex-col w-full max-w-5xl max-h-[94vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-200/80">
         
         {/* MODAL HEADER */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-6 py-4">
@@ -129,7 +145,7 @@ export function StoryEditorModal({
                 {story ? "Editar Historia / Testimonio" : "Nueva Historia / Testimonio"}
               </h2>
               <p className="text-xs text-slate-500">
-                Edita los datos con sincronización y vista previa visual en tiempo real.
+                Edición de contenido con sincronización en vivo del Hero y tarjetas de Legado UPT.
               </p>
             </div>
           </div>
@@ -249,23 +265,65 @@ export function StoryEditorModal({
               </div>
             </div>
 
-            {/* Image URL / Avatar */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Foto / Avatar (Ruta o URL)
+            {/* Avatar Selection & Upload */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700">
+                Fotografía / Avatar del estudiante
               </label>
-              <div className="flex items-center gap-2">
+
+              {/* Avatar Presets */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {PRESET_AVATARS.map((av) => (
+                  <button
+                    key={av.url}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, imageUrl: av.url })}
+                    className={`group relative size-11 overflow-hidden rounded-full border-2 transition shrink-0 ${
+                      formData.imageUrl === av.url
+                        ? "border-fuerza-blue ring-2 ring-blue-400"
+                        : "border-slate-200 hover:border-slate-400"
+                    }`}
+                    title={`${av.name} (${av.role})`}
+                  >
+                    <img src={av.url} alt={av.name} className="size-full object-cover" />
+                    {formData.imageUrl === av.url && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-blue-600/40 text-white">
+                        <Check className="size-3.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Upload file or custom URL */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  id="storyAvatarInput"
+                />
+                <label
+                  htmlFor="storyAvatarInput"
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 cursor-pointer ${
+                    isUploading ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                >
+                  <UploadCloud className="size-4 text-fuerza-blue" />
+                  <span>{isUploading ? "Subiendo..." : "Subir desde PC"}</span>
+                </label>
+
                 <input
                   type="text"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="/images/valeria-sanchez.png o URL pública"
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-fuerza-blue"
+                  placeholder="/images/... o URL pública"
+                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-fuerza-blue"
                 />
               </div>
-              <p className="mt-1 text-[10px] text-slate-400">
-                Puedes usar imágenes predeterminadas: /images/valeria-sanchez.png, /images/jose-rojas.png, /images/andrea-flores.png, etc.
-              </p>
+              {uploadError && <p className="text-xs text-red-600 font-semibold">{uploadError}</p>}
             </div>
 
             {/* Quote (Main testimonial text) */}
@@ -286,7 +344,7 @@ export function StoryEditorModal({
             {/* Full Story (Detailed) */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Historia completa y contexto (Opcional)
+                Historia completa y contexto (Para ver detalle completo)
               </label>
               <textarea
                 rows={4}
@@ -304,7 +362,7 @@ export function StoryEditorModal({
                 id="featuredHeroCheck"
                 checked={formData.featuredInHero}
                 onChange={(e) => setFormData({ ...formData, featuredInHero: e.target.checked })}
-                className="size-4 rounded-md border-slate-300 text-fuerza-blue accent-fuerza-blue"
+                className="size-4 rounded-md border-slate-300 text-fuerza-blue accent-fuerza-blue cursor-pointer"
               />
               <label htmlFor="featuredHeroCheck" className="text-xs font-bold text-slate-800 cursor-pointer">
                 <span className="flex items-center gap-1.5 text-blue-900">
@@ -312,7 +370,7 @@ export function StoryEditorModal({
                   Destacar en el carrusel flotante del Hero principal
                 </span>
                 <span className="block font-normal text-[11px] text-slate-500 mt-0.5">
-                  Aparecerá en la tarjeta flotante junto a la foto principal de Legado UPT.
+                  Aparecerá en la tarjeta flotante oscura junto a la foto principal de Legado UPT.
                 </span>
               </label>
             </div>
@@ -347,33 +405,33 @@ export function StoryEditorModal({
                 const isLid = cat === "Liderazgo" || cat === "Proyecto";
                 const isCom = !isExp && !isLid;
 
-                const circleBg = isExp ? "bg-rose-500" : isLid ? "bg-blue-600" : "bg-emerald-500";
+                const circleBg = isExp ? "bg-[#f43f5e]" : isLid ? "bg-[#2563eb]" : "bg-[#10b981]";
                 const pillClass = isExp
-                  ? "bg-[#fef2f2] text-[#e11d48] border-[#fecdd3]"
+                  ? "bg-[#fff1f2] text-[#f43f5e] border-[#ffe4e6]"
                   : isLid
-                  ? "bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]"
-                  : "bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]";
-                const linkColor = isExp ? "text-[#e11d48]" : isLid ? "text-[#1d4ed8]" : "text-[#15803d]";
+                  ? "bg-[#eff6ff] text-[#2563eb] border-[#dbeafe]"
+                  : "bg-[#ecfdf5] text-[#10b981] border-[#d1fae5]";
+                const linkColor = isExp ? "text-[#f43f5e]" : isLid ? "text-[#2563eb]" : "text-[#10b981]";
 
                 return (
-                  <div className="relative rounded-[28px] border border-slate-200/80 bg-white p-7 pt-8 shadow-md space-y-4">
+                  <div className="relative rounded-[28px] border border-slate-200/80 bg-white p-6 pt-7 shadow-lg space-y-4">
                     {/* Top Floating Circle Icon */}
                     <div
-                      className={`absolute -top-4 left-6 flex size-10 items-center justify-center rounded-full text-white shadow-md ${circleBg}`}
+                      className={`absolute -top-3.5 left-6 flex size-9 items-center justify-center rounded-full text-white shadow-md ${circleBg}`}
                     >
                       {isExp ? (
-                        <Heart className="size-5 fill-white stroke-none" />
+                        <Heart className="size-4 fill-white stroke-none" />
                       ) : isLid ? (
-                        <Star className="size-5 fill-white stroke-none" />
+                        <Star className="size-4 fill-white stroke-none" />
                       ) : (
-                        <Users className="size-5" />
+                        <Users className="size-4" />
                       )}
                     </div>
 
                     {/* Top Category Badge */}
                     <div className="flex justify-end">
                       <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${pillClass}`}
+                        className={`inline-flex items-center px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${pillClass}`}
                       >
                         {cat}
                       </span>
@@ -422,7 +480,7 @@ export function StoryEditorModal({
               })()}
             </div>
 
-            {/* 2. HERO FLOATING CARD REPLICA (IF FEATURED) */}
+            {/* 2. HERO FLOATING CARD REPLICA */}
             <div className="space-y-3">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
                 2. Tarjeta flotante en Hero (Home Legado UPT)
@@ -432,7 +490,7 @@ export function StoryEditorModal({
                 className={`rounded-[24px] p-6 shadow-2xl transition-all ${
                   formData.featuredInHero
                     ? "bg-[#0d1b2a] text-white border border-white/10 ring-2 ring-blue-500/40"
-                    : "bg-[#0d1b2a]/90 text-white/70 border border-white/5 opacity-60"
+                    : "bg-[#0d1b2a]/90 text-white/70 border border-white/5 opacity-70"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">

@@ -2,12 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
+  AlertTriangle,
   Archive,
+  ArrowRight,
   BookOpen,
+  Check,
   Edit,
   Eye,
   HeartHandshake,
+  Megaphone,
   MessageSquareQuote,
   Plus,
   RefreshCw,
@@ -17,6 +22,7 @@ import {
   Star,
   Trash2,
   User,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StoryEditorModal } from "@/components/admin/story/story-editor-modal";
@@ -27,6 +33,10 @@ export default function HistoriasAdminPage() {
   const [stories, setStories] = useState<StoryAdminResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Filters
   const [activeTab, setActiveTab] = useState<"ALL" | "PUBLISHED" | "DRAFT" | "ARCHIVED">("ALL");
@@ -36,6 +46,13 @@ export default function HistoriasAdminPage() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStory, setEditingStory] = useState<StoryAdminResponse | null>(null);
+  const [deleteModalItem, setDeleteModalItem] = useState<StoryAdminResponse | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const showNotification = (message: string, type: "success" | "error" = "success") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 4000);
+  };
 
   const fetchStories = async () => {
     try {
@@ -43,8 +60,7 @@ export default function HistoriasAdminPage() {
       setError(null);
       const res = await storyAdminService.getStories(0, 100);
       setStories(res.content || []);
-    } catch (err: any) {
-      console.error(err);
+    } catch {
       setError("No se pudieron cargar las historias y testimonios.");
     } finally {
       setLoading(false);
@@ -94,42 +110,60 @@ export default function HistoriasAdminPage() {
     try {
       if (editingStory) {
         await storyAdminService.updateStory(editingStory.id, req);
+        showNotification(`Historia de "${req.authorName}" actualizada correctamente.`);
       } else {
         await storyAdminService.createStory(req);
+        showNotification(`Nueva historia de "${req.authorName}" creada exitosamente.`);
       }
       await fetchStories();
-    } catch (err: any) {
-      alert("Error al guardar la historia: " + (err.message || "Error desconocido"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al guardar la historia";
+      showNotification(msg, "error");
       throw err;
     }
   };
 
-  const handleArchive = async (id: string) => {
-    if (!confirm("¿Deseas mover esta historia a la papelera?")) return;
+  const handleArchive = async (item: StoryAdminResponse) => {
     try {
-      await storyAdminService.archiveStory(id);
+      setIsProcessing(true);
+      await storyAdminService.archiveStory(item.id);
+      showNotification(`"${item.authorName}" movido a la papelera.`);
       await fetchStories();
-    } catch (err: any) {
-      alert("Error al archivar la historia: " + (err.message || "Error desconocido"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al archivar la historia";
+      showNotification(msg, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleRestore = async (id: string) => {
+  const handleRestore = async (item: StoryAdminResponse) => {
     try {
-      await storyAdminService.changeStatus(id, "PUBLISHED");
+      setIsProcessing(true);
+      await storyAdminService.changeStatus(item.id, "DRAFT");
+      showNotification(`"${item.authorName}" restaurado como Borrador.`);
       await fetchStories();
-    } catch (err: any) {
-      alert("Error al restaurar: " + (err.message || "Error desconocido"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al restaurar la historia";
+      showNotification(msg, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleDeletePermanent = async (id: string) => {
-    if (!confirm("¿Estás completamente seguro de eliminar esta historia permanentemente? Esta acción no se puede deshacer.")) return;
+  const handlePermanentDelete = async () => {
+    if (!deleteModalItem || isProcessing) return;
     try {
-      await storyAdminService.deleteStory(id, true);
+      setIsProcessing(true);
+      await storyAdminService.deleteStory(deleteModalItem.id, true);
+      showNotification(`"${deleteModalItem.authorName}" eliminado definitivamente.`);
+      setDeleteModalItem(null);
       await fetchStories();
-    } catch (err: any) {
-      alert("Error al eliminar permanentemente: " + (err.message || "Error desconocido"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar de PostgreSQL";
+      showNotification(msg, "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -154,27 +188,76 @@ export default function HistoriasAdminPage() {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* NOTIFICATION TOAST */}
+      {notification && (
+        <div
+          className={`p-4 rounded-2xl flex items-center justify-between shadow-sm border transition-all ${
+            notification.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
+          }`}
+        >
+          <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+            {notification.type === "success" ? (
+              <Check className="size-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertTriangle className="size-4 text-red-600 shrink-0" />
+            )}
+            <span>{notification.message}</span>
+          </div>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-slate-400 hover:text-slate-600 transition"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
+
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-fuerza-blue bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+              MÓDULO VOCES Y HERO
+            </span>
+            <Link
+              href="/administracion/representacion-estudiantil"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-fuerza-blue transition"
+            >
+              <Megaphone className="size-3.5" />
+              <span>Ir a Gestiones y Logros</span>
+            </Link>
+          </div>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Historias y Testimonios de Estudiantes
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Administra las voces y relatos estudiantiles que se visualizan en el Legado UPT y la página de testimonios.
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl">
+            Administra las historias, frases y testimonios que se visualizan en el carrusel rotativo del Hero y en la sección *"Voces que construyen universidad"*.
           </p>
         </div>
 
-        <Button
-          onClick={() => {
-            setEditingStory(null);
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 bg-fuerza-blue hover:bg-blue-700 text-white font-bold rounded-2xl shadow-md shadow-blue-500/20"
-        >
-          <Plus className="size-4" />
-          Nueva historia
-        </Button>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/representacion-estudiantil"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50"
+          >
+            <Eye className="size-4 text-slate-500" />
+            <span>Ver landing</span>
+          </Link>
+
+          <Button
+            onClick={() => {
+              setEditingStory(null);
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 bg-fuerza-blue hover:bg-blue-700 text-white font-bold rounded-2xl shadow-md shadow-blue-500/20 px-5 py-2.5"
+          >
+            <Plus className="size-4" />
+            <span>Nueva historia</span>
+          </Button>
+        </div>
       </div>
 
       {/* STATS CARDS */}
@@ -187,7 +270,7 @@ export default function HistoriasAdminPage() {
             </div>
           </div>
           <p className="mt-3 text-2xl font-black text-slate-900">{totalCount}</p>
-          <span className="text-[11px] font-semibold text-slate-400">Registradas</span>
+          <span className="text-[11px] font-semibold text-slate-400">Registradas en BD</span>
         </div>
 
         <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xs">
@@ -253,7 +336,7 @@ export default function HistoriasAdminPage() {
               onClick={() => setActiveTab("DRAFT")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
                 activeTab === "DRAFT"
-                  ? "bg-slate-800 text-white"
+                  ? "bg-amber-600 text-white shadow-sm shadow-amber-600/20"
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100"
               }`}
             >
@@ -263,79 +346,81 @@ export default function HistoriasAdminPage() {
               onClick={() => setActiveTab("ARCHIVED")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
                 activeTab === "ARCHIVED"
-                  ? "bg-rose-600 text-white"
+                  ? "bg-rose-600 text-white shadow-sm shadow-rose-600/20"
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100"
               }`}
             >
-              <Trash2 className="size-3" /> Papelera ({archivedCount})
+              <Archive className="size-3" />
+              <span>Papelera ({archivedCount})</span>
             </button>
           </div>
 
-          {/* Search & Category dropdown */}
+          {/* Search & Category filter */}
           <div className="flex items-center gap-2">
+            <div className="relative flex-1 sm:w-60">
+              <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar por estudiante, carrera o frase..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-1.5 pl-8 pr-3 text-xs text-slate-800 outline-none focus:border-fuerza-blue focus:bg-white"
+              />
+            </div>
+
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-fuerza-blue"
+              className="rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none focus:border-fuerza-blue"
             >
               <option value="ALL">Todas las categorías</option>
               <option value="Experiencia">Experiencia</option>
               <option value="Liderazgo">Liderazgo</option>
               <option value="Comunidad">Comunidad</option>
-              <option value="Intercambio estudiantil">Intercambio estudiantil</option>
+              <option value="Intercambio estudiantil">Intercambio</option>
               <option value="Beca">Beca</option>
               <option value="Proyecto">Proyecto</option>
             </select>
-
-            <div className="relative w-full sm:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Buscar por estudiante o cita..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-fuerza-blue focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchStories}
-              className="rounded-xl size-8 p-0"
-              title="Refrescar datos"
-            >
-              <RefreshCw className="size-3.5 text-slate-600" />
-            </Button>
           </div>
         </div>
       </div>
 
-      {/* TABLE / LIST */}
+      {/* TABLE / LIST OF STORIES */}
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-xs">
         {loading ? (
-          <div className="p-12 text-center text-slate-400">
-            <RefreshCw className="size-6 animate-spin mx-auto mb-2 text-fuerza-blue" />
-            <p className="text-xs font-semibold">Cargando historias y testimonios...</p>
+          <div className="p-12 text-center text-slate-400 text-sm font-semibold">
+            Cargando historias y testimonios...
           </div>
         ) : filteredStories.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 space-y-2">
-            <MessageSquareQuote className="size-10 mx-auto opacity-30 text-slate-400" />
-            <p className="text-sm font-bold text-slate-600">No se encontraron historias</p>
-            <p className="text-xs">
-              {activeTab === "ARCHIVED"
-                ? "La papelera está vacía."
-                : "Crea una nueva historia para comenzar a publicar testimonios."}
+          <div className="p-12 text-center space-y-3">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-blue-50 text-fuerza-blue">
+              <MessageSquareQuote className="size-6" />
+            </div>
+            <p className="text-sm font-bold text-slate-700">
+              No se encontraron testimonios en este filtro.
             </p>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              Crea tu primera historia estudiantil con foto, carrera y cita para verla en la landing de Legado Fuerza UPT.
+            </p>
+            <Button
+              onClick={() => {
+                setEditingStory(null);
+                setIsModalOpen(true);
+              }}
+              className="bg-fuerza-blue hover:bg-blue-700 text-white text-xs font-bold rounded-xl"
+            >
+              <Plus className="size-3.5 mr-1" />
+              Crear primera historia
+            </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/80 text-[11px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-100">
+              <thead className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-black uppercase tracking-wider text-slate-400">
                 <tr>
                   <th className="px-6 py-3.5">Estudiante</th>
                   <th className="px-4 py-3.5">Categoría</th>
-                  <th className="px-6 py-3.5">Cita Testimonial</th>
+                  <th className="px-6 py-3.5">Cita / Testimonio</th>
                   <th className="px-4 py-3.5 text-center">Hero</th>
                   <th className="px-4 py-3.5 text-center">Estado</th>
                   <th className="px-6 py-3.5 text-right">Acciones</th>
@@ -343,8 +428,8 @@ export default function HistoriasAdminPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredStories.map((story) => (
-                  <tr key={story.id} className="hover:bg-slate-50/60 transition">
-                    {/* Student Info */}
+                  <tr key={story.id} className="transition hover:bg-slate-50/60">
+                    {/* Author */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="relative size-10 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
@@ -355,14 +440,18 @@ export default function HistoriasAdminPage() {
                               className="size-full object-cover"
                             />
                           ) : (
-                            <div className="flex size-full items-center justify-center bg-blue-50 text-blue-600">
-                              <User className="size-5" />
+                            <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                              {story.authorName.charAt(0)}
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="font-extrabold text-slate-900">{story.authorName}</p>
-                          <p className="text-[11px] text-slate-500">{story.authorCareer}</p>
+                          <span className="block font-bold text-slate-900">
+                            {story.authorName}
+                          </span>
+                          <span className="block text-[11px] text-slate-500 font-medium">
+                            {story.authorCareer}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -420,16 +509,18 @@ export default function HistoriasAdminPage() {
                           <>
                             <button
                               type="button"
-                              onClick={() => handleRestore(story.id)}
-                              className="flex size-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100"
+                              onClick={() => handleRestore(story)}
+                              disabled={isProcessing}
+                              className="flex size-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100 cursor-pointer"
                               title="Restaurar historia"
                             >
                               <RotateCcw className="size-3.5" />
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDeletePermanent(story.id)}
-                              className="flex size-8 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition hover:bg-rose-100"
+                              onClick={() => setDeleteModalItem(story)}
+                              disabled={isProcessing}
+                              className="flex size-8 items-center justify-center rounded-xl bg-rose-50 text-rose-600 transition hover:bg-rose-100 cursor-pointer"
                               title="Eliminar definitivamente"
                             >
                               <Trash2 className="size-3.5" />
@@ -443,15 +534,16 @@ export default function HistoriasAdminPage() {
                                 setEditingStory(story);
                                 setIsModalOpen(true);
                               }}
-                              className="flex size-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                              className="flex size-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition hover:bg-blue-100 cursor-pointer"
                               title="Editar con vista previa en tiempo real"
                             >
                               <Edit className="size-3.5" />
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleArchive(story.id)}
-                              className="flex size-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                              onClick={() => handleArchive(story)}
+                              disabled={isProcessing}
+                              className="flex size-8 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
                               title="Mover a papelera"
                             >
                               <Trash2 className="size-3.5" />
@@ -475,6 +567,54 @@ export default function HistoriasAdminPage() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
       />
+
+      {/* MODAL DE CONFIRMACIÓN DE ELIMINACIÓN PERMANENTE */}
+      {deleteModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 shrink-0">
+                <AlertTriangle className="size-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900">
+                  ¿Eliminar definitivamente?
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Esta acción eliminará el registro de PostgreSQL de forma irreversible.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-slate-50 p-3.5 border border-slate-200/60">
+              <p className="text-xs font-bold text-slate-800">{deleteModalItem.authorName}</p>
+              <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 italic">
+                "{deleteModalItem.quote}"
+              </p>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2.5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteModalItem(null)}
+                disabled={isProcessing}
+                className="rounded-xl text-xs font-bold"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={handlePermanentDelete}
+                disabled={isProcessing}
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold"
+              >
+                {isProcessing ? "Eliminando..." : "Sí, eliminar para siempre"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

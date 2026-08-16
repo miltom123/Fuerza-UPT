@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   AlertTriangle,
   Archive,
+  ArrowRight,
   Check,
   Edit,
   Eye,
@@ -175,13 +177,48 @@ export default function RepresentationAdminPage() {
           </p>
         </div>
 
-        <Button
-          onClick={openNewEditor}
-          className="bg-fuerza-blue hover:bg-blue-700 text-white font-semibold"
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/administracion/historias"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold transition hover:bg-amber-100"
+          >
+            <Sparkles className="size-4 text-amber-600" />
+            <span>Editar Historias y Hero</span>
+          </Link>
+
+          <Button
+            onClick={openNewEditor}
+            className="bg-fuerza-blue hover:bg-blue-700 text-white font-semibold"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo registro
+          </Button>
+        </div>
+      </div>
+
+      {/* QUICK BANNER FOR HERO & TESTIMONIALS */}
+      <div className="rounded-3xl border border-blue-100 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="flex size-11 items-center justify-center rounded-2xl bg-fuerza-blue text-white shadow-md shadow-blue-500/20 shrink-0">
+            <Sparkles className="size-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900">
+              Voces Estudiantiles & Citas del Hero
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Edita en tiempo real las citas rotativas del Hero, fotografías de testimonios y los relatos de estudiantes.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/administracion/historias"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shrink-0"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo registro
-        </Button>
+          <span>Abrir editor de historias</span>
+          <ArrowRight className="size-3.5" />
+        </Link>
       </div>
 
       {/* NOTIFICATION TOAST */}
