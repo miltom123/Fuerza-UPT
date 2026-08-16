@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
+  ArrowRight,
   BookOpen,
   Check,
   GraduationCap,
+  Heart,
   HeartHandshake,
   Image as ImageIcon,
   MessageSquareQuote,
@@ -13,6 +15,7 @@ import {
   Sparkles,
   Star,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -333,104 +336,132 @@ export function StoryEditorModal({
             </div>
 
             {/* 1. VOCES QUE CONSTRUYEN CARD REPLICA */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
                 1. Tarjeta en "Voces que construyen universidad"
               </span>
 
-              <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-md space-y-4">
-                {/* Badge */}
-                <div>
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getBadgeStyle(
-                      formData.category || "Experiencia"
-                    )}`}
-                  >
-                    {formData.category || "Experiencia"}
-                  </span>
-                </div>
+              {(() => {
+                const cat = formData.category || "Experiencia";
+                const isExp = cat === "Experiencia" || cat === "Beca";
+                const isLid = cat === "Liderazgo" || cat === "Proyecto";
+                const isCom = !isExp && !isLid;
 
-                {/* Author Info */}
-                <div className="flex items-center gap-3">
-                  <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-sm bg-slate-100 shrink-0">
-                    {formData.imageUrl ? (
-                      <img
-                        src={formData.imageUrl}
-                        alt={formData.authorName || "Estudiante"}
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700">
-                        <User className="size-6" />
+                const circleBg = isExp ? "bg-rose-500" : isLid ? "bg-blue-600" : "bg-emerald-500";
+                const pillClass = isExp
+                  ? "bg-[#fef2f2] text-[#e11d48] border-[#fecdd3]"
+                  : isLid
+                  ? "bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]"
+                  : "bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0]";
+                const linkColor = isExp ? "text-[#e11d48]" : isLid ? "text-[#1d4ed8]" : "text-[#15803d]";
+
+                return (
+                  <div className="relative rounded-[28px] border border-slate-200/80 bg-white p-7 pt-8 shadow-md space-y-4">
+                    {/* Top Floating Circle Icon */}
+                    <div
+                      className={`absolute -top-4 left-6 flex size-10 items-center justify-center rounded-full text-white shadow-md ${circleBg}`}
+                    >
+                      {isExp ? (
+                        <Heart className="size-5 fill-white stroke-none" />
+                      ) : isLid ? (
+                        <Star className="size-5 fill-white stroke-none" />
+                      ) : (
+                        <Users className="size-5" />
+                      )}
+                    </div>
+
+                    {/* Top Category Badge */}
+                    <div className="flex justify-end">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${pillClass}`}
+                      >
+                        {cat}
+                      </span>
+                    </div>
+
+                    {/* Author Info */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0">
+                        {formData.imageUrl ? (
+                          <img
+                            src={formData.imageUrl}
+                            alt={formData.authorName || "Estudiante"}
+                            className="size-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                            {formData.authorName?.charAt(0) || "U"}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  <div>
-                    <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
-                      {formData.authorName || "Nombre del estudiante"}
-                    </h4>
-                    <p className="text-xs text-slate-500 font-medium">
-                      {formData.authorCareer || "Carrera / Rol estudiantil"}
+                      <div>
+                        <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
+                          {formData.authorName || "Nombre del estudiante"}
+                        </h4>
+                        <p className="text-xs text-slate-500 font-medium">
+                          {formData.authorCareer || "Carrera / Rol estudiantil"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Quote */}
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                      "{formData.quote || "Escribe la cita testimonial del estudiante..."}"
                     </p>
+
+                    {/* Action Link */}
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${linkColor}`}>
+                        <span>Ver detalle completo</span>
+                        <ArrowRight className="size-3.5" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-
-                {/* Quote */}
-                <p className="text-xs text-slate-600 leading-relaxed italic">
-                  "{formData.quote || "Escribe la cita testimonial del estudiante..."}"
-                </p>
-
-                {/* Action Link */}
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-fuerza-blue">
-                    <Play className="size-3.5 fill-blue-600 text-blue-600" />
-                    Ver detalle completo
-                  </span>
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* 2. HERO FLOATING CARD REPLICA (IF FEATURED) */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
                 2. Tarjeta flotante en Hero (Home Legado UPT)
               </span>
 
               <div
-                className={`rounded-3xl p-6 shadow-xl border transition-all ${
+                className={`rounded-[24px] p-6 shadow-2xl transition-all ${
                   formData.featuredInHero
-                    ? "bg-white border-blue-200/80 ring-2 ring-blue-100"
-                    : "bg-slate-50/80 border-slate-200 opacity-60"
+                    ? "bg-[#0d1b2a] text-white border border-white/10 ring-2 ring-blue-500/40"
+                    : "bg-[#0d1b2a]/90 text-white/70 border border-white/5 opacity-60"
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl font-black text-fuerza-blue">“</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-3xl font-black text-[#f43f5e] leading-none">“</span>
                   {formData.featuredInHero && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
                       <Sparkles className="size-3" /> Activo en Hero
                     </span>
                   )}
                 </div>
 
-                <p className="text-xs font-bold text-slate-800 leading-relaxed">
+                <p className="text-xs font-semibold text-white leading-relaxed">
                   {formData.quote || "Cita destacada en el hero principal..."}
                 </p>
 
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
                   <div>
-                    <span className="block text-xs font-black text-slate-900">
+                    <span className="block text-xs font-extrabold text-white">
                       — {formData.authorName || "Nombre del estudiante"}
                     </span>
-                    <span className="block text-[11px] text-slate-500">
+                    <span className="block text-[11px] text-[#93c5fd] font-medium">
                       {formData.authorCareer || "Carrera"}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <span className="size-2 rounded-full bg-fuerza-blue" />
-                    <span className="size-2 rounded-full bg-slate-200" />
-                    <span className="size-2 rounded-full bg-slate-200" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-4 rounded-full bg-[#f43f5e]" />
+                    <span className="size-1.5 rounded-full bg-white/40" />
+                    <span className="size-1.5 rounded-full bg-white/40" />
                   </div>
                 </div>
               </div>

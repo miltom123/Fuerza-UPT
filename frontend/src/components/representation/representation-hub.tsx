@@ -10,8 +10,10 @@ import {
   ChevronRight,
   ClipboardList,
   FileText,
+  Heart,
   Play,
   ShieldCheck,
+  Star,
   Target,
   Trophy,
   Users,
@@ -386,7 +388,10 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
           <div className={styles.heroLeft}>
             <span className={styles.eyebrow}>LEGADO FUERZA UPT</span>
             <h1 className={styles.heroTitle}>
-              Historias que inspiran, acciones que transforman
+              <span className={styles.titleDark}>HISTORIAS</span><br />
+              <span className={styles.titleDark}>QUE INSPIRAN,</span><br />
+              <span className={styles.titleRed}>ACCIONES QUE</span><br />
+              <span className={styles.titleGreen}>TRANSFORMAN</span>
             </h1>
             <p className={styles.lead}>
               Somos una comunidad que impulsa el cambio a través del seguimiento, la transparencia y la participación estudiantil.
@@ -398,17 +403,18 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
                 className={styles.btnPrimary}
               >
                 <Activity size={18} />
-                Ver gestiones activas
+                VER GESTIONES ACTIVAS
               </button>
               <Link href="/contacto" className={styles.btnOutline}>
                 <FileText size={18} />
-                Enviar propuesta
+                ENVIAR PROPUESTA
               </Link>
             </div>
           </div>
 
           <div className={styles.heroRight}>
             <div className={styles.heroImageWrapper}>
+              <div className={styles.heroRedCurve} />
               <Image
                 src="/images/hero-student.png"
                 alt="Estudiante universitario de Fuerza UPT"
@@ -446,6 +452,10 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
         <section className={styles.testimonialsSection}>
           <div className={styles.sectionHeaderCenter}>
             <h2>Voces que construyen universidad</h2>
+            <div className={styles.titleDivider}>
+              <span className={styles.dividerRed} />
+              <span className={styles.dividerGreen} />
+            </div>
             <p>Conoce las experiencias de estudiantes que han sido parte del cambio.</p>
           </div>
 
@@ -465,35 +475,61 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
             <div className={styles.testimonialsGrid}>
               {displayStories
                 .slice(activeTestimonialPage * 3, activeTestimonialPage * 3 + 3)
-                .map((t) => (
-                  <article key={t.id} className={styles.testimonialCard}>
-                    <span className={styles.badgePillBlue}>{t.category}</span>
-                    <div className={styles.authorRow}>
-                      <div className="relative size-12 overflow-hidden rounded-full border border-slate-200 bg-slate-100 shrink-0">
-                        {t.imageUrl ? (
-                          <img
-                            src={t.imageUrl}
-                            alt={t.authorName}
-                            className="size-full object-cover"
-                          />
+                .map((t, idx) => {
+                  const isExp = t.category === "Experiencia" || t.category === "Beca";
+                  const isLid = t.category === "Liderazgo" || t.category === "Proyecto";
+
+                  const iconClass = isExp ? styles.iconHeart : isLid ? styles.iconStar : styles.iconUsers;
+                  const badgeClass = isExp ? styles.badgePillRed : isLid ? styles.badgePillBlue : styles.badgePillGreen;
+                  const linkClass = isExp ? styles.linkRed : isLid ? styles.linkBlue : styles.linkGreen;
+
+                  return (
+                    <article key={t.id || idx} className={styles.testimonialCard}>
+                      <div className={`${styles.cardTopIcon} ${iconClass}`}>
+                        {isExp ? (
+                          <Heart className="size-5 fill-white stroke-none" />
+                        ) : isLid ? (
+                          <Star className="size-5 fill-white stroke-none" />
                         ) : (
-                          <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
-                            {t.authorName.charAt(0)}
-                          </div>
+                          <Users className="size-5" />
                         )}
                       </div>
-                      <div className={styles.authorInfo}>
-                        <span className={styles.authorName}>{t.authorName}</span>
-                        <span className={styles.authorStudy}>{t.authorCareer}</span>
+
+                      <div className={styles.cardTopRow}>
+                        <span className={badgeClass}>{t.category}</span>
                       </div>
-                    </div>
-                    <p className={styles.testimonialText}>"{t.quote}"</p>
-                    <Link href="/testimonios" className={styles.testimonialLink}>
-                      <Play size={14} fill="#1d4ed8" color="#1d4ed8" />
-                      Ver detalle completo
-                    </Link>
-                  </article>
-                ))}
+
+                      <div className={styles.authorRow}>
+                        <div className="relative size-12 overflow-hidden rounded-full border-2 border-white shadow-xs bg-slate-100 shrink-0">
+                          {t.imageUrl ? (
+                            <img
+                              src={t.imageUrl}
+                              alt={t.authorName}
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex size-full items-center justify-center bg-blue-100 text-blue-700 font-bold">
+                              {t.authorName.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div className={styles.authorInfo}>
+                          <span className={styles.authorName}>{t.authorName}</span>
+                          <span className={styles.authorStudy}>{t.authorCareer}</span>
+                        </div>
+                      </div>
+
+                      <p className={styles.testimonialText}>"{t.quote}"</p>
+
+                      <div className="pt-2 border-t border-slate-100/60">
+                        <Link href="/testimonios" className={`${styles.testimonialLink} ${linkClass}`}>
+                          <span>Ver detalle completo</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
             </div>
 
             <button
@@ -511,7 +547,7 @@ export function RepresentationHub({ items, stories }: RepresentationHubProps) {
 
           <div className={styles.centerLinkWrap}>
             <Link href="/testimonios" className={styles.btnRoundedOutline}>
-              Ver todos los testimonios
+              VER TODOS LOS TESTIMONIOS
               <ArrowRight size={16} />
             </Link>
           </div>
