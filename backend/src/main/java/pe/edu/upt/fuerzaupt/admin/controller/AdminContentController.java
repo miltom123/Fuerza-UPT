@@ -91,4 +91,17 @@ public class AdminContentController {
         auditLogService.record(authentication, "ARCHIVE", module, id, before, null, request);
         cacheInvalidationService.invalidate(module);
     }
+
+    @DeleteMapping("/{module}/{id}/permanent")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePermanent(
+            @PathVariable String module,
+            @PathVariable UUID id,
+            Authentication authentication,
+            HttpServletRequest request
+    ) {
+        contentService.deletePermanent(module, id);
+        auditLogService.record(authentication, "DELETE_PERMANENT", module, id, null, null, request);
+        cacheInvalidationService.invalidate(module);
+    }
 }

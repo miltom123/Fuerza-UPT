@@ -211,13 +211,46 @@ public class AdminContentService {
                 item.setFeatured(featured);
                 item.setDisplayOrder(displayOrder);
                 item.setPublishedAt(publishedAt);
-                item.setOpportunityType("CALL");
+                item.setOpportunityType(defaultValue(input.category(), "SCHOLARSHIP"));
                 item.setInstitution(input.institution());
                 item.setDescription(input.description());
                 item.setDeadline(input.endDate());
+                item.setCountryOrModality(defaultValue(input.modality(), "Presencial"));
                 item.setOfficialUrl(input.officialUrl());
                 item.setApplicationUrl(input.applicationUrl());
-                item.setOpportunityStatus(defaultValue(input.domainStatus(), "COMING_SOON"));
+                item.setOpportunityStatus(defaultValue(input.domainStatus(), "OPEN"));
+
+                if (input.proposalOrManagement() != null) {
+                    String[] bArr = input.proposalOrManagement().split("\\r?\\n");
+                    int o = 0;
+                    for (String b : bArr) {
+                        String t = b.trim();
+                        if (!t.isEmpty()) {
+                            OpportunityBenefit ben = new OpportunityBenefit();
+                            ben.setId(UUID.randomUUID());
+                            ben.setOpportunity(item);
+                            ben.setDescription(t);
+                            ben.setDisplayOrder(o++);
+                            item.getBenefits().add(ben);
+                        }
+                    }
+                }
+                if (input.result() != null) {
+                    String[] rArr = input.result().split("\\r?\\n");
+                    int o = 0;
+                    for (String r : rArr) {
+                        String t = r.trim();
+                        if (!t.isEmpty()) {
+                            OpportunityRequirement req = new OpportunityRequirement();
+                            req.setId(UUID.randomUUID());
+                            req.setOpportunity(item);
+                            req.setDescription(t);
+                            req.setDisplayOrder(o++);
+                            item.getRequirements().add(req);
+                        }
+                    }
+                }
+
                 opportunityRepository.save(item);
             }
             case STATISTICS -> {
@@ -297,12 +330,47 @@ public class AdminContentService {
                 item.setFeatured(input.featured());
                 item.setDisplayOrder(input.displayOrder());
                 item.setPublishedAt(publishedAt);
+                if (input.category() != null) item.setOpportunityType(input.category());
                 if (input.institution() != null) item.setInstitution(input.institution());
                 if (input.description() != null) item.setDescription(input.description());
                 if (input.endDate() != null) item.setDeadline(input.endDate());
+                if (input.modality() != null) item.setCountryOrModality(input.modality());
                 if (input.domainStatus() != null) item.setOpportunityStatus(normalizeOptional(input.domainStatus()));
                 if (input.officialUrl() != null) item.setOfficialUrl(input.officialUrl());
                 if (input.applicationUrl() != null) item.setApplicationUrl(input.applicationUrl());
+
+                if (input.proposalOrManagement() != null) {
+                    item.getBenefits().clear();
+                    String[] bArr = input.proposalOrManagement().split("\\r?\\n");
+                    int o = 0;
+                    for (String b : bArr) {
+                        String t = b.trim();
+                        if (!t.isEmpty()) {
+                            OpportunityBenefit ben = new OpportunityBenefit();
+                            ben.setId(UUID.randomUUID());
+                            ben.setOpportunity(item);
+                            ben.setDescription(t);
+                            ben.setDisplayOrder(o++);
+                            item.getBenefits().add(ben);
+                        }
+                    }
+                }
+                if (input.result() != null) {
+                    item.getRequirements().clear();
+                    String[] rArr = input.result().split("\\r?\\n");
+                    int o = 0;
+                    for (String r : rArr) {
+                        String t = r.trim();
+                        if (!t.isEmpty()) {
+                            OpportunityRequirement req = new OpportunityRequirement();
+                            req.setId(UUID.randomUUID());
+                            req.setOpportunity(item);
+                            req.setDescription(t);
+                            req.setDisplayOrder(o++);
+                            item.getRequirements().add(req);
+                        }
+                    }
+                }
                 opportunityRepository.save(item);
             }
             case STATISTICS -> {
@@ -352,6 +420,18 @@ public class AdminContentService {
             }
         }
         return before;
+    }
+
+    @Transactional
+    public void deletePermanent(String moduleName, UUID id) {
+        Module module = Module.from(moduleName);
+        switch (module) {
+            case REPRESENTATION -> representationRepository.deleteById(id);
+            case EVENTS -> eventRepository.deleteById(id);
+            case OPPORTUNITIES -> opportunityRepository.deleteById(id);
+            case STATISTICS -> statisticRepository.deleteById(id);
+            case PROJECTS -> throw new UnsupportedOperationException("El borrado de proyectos debe realizarse a través de /api/admin/proyectos.");
+        }
     }
 
     @Transactional

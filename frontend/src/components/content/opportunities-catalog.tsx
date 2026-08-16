@@ -213,8 +213,7 @@ export function OpportunitiesCatalog({
 }: OpportunitiesCatalogProps) {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
 
-  const displayList =
-    opportunities.length > 0 ? opportunities : sampleOpportunities;
+  const displayList = opportunities;
 
   const featuredList = displayList.filter((o) => o.featured || o.opportunityType === "CALL");
 
@@ -391,11 +390,28 @@ export function OpportunitiesCatalog({
           </section>
         )}
 
-        {/* Info Banner */}
-        <div className={styles.infoBanner}>
-          <div className={styles.infoIcon}>
-            <Info size={22} />
+        {/* Banner de Ayuda / Asesoría */}
+        <section className={styles.helpBanner}>
+          <div className={styles.helpLeft}>
+            <div className={styles.helpIconBox}>
+              <Info size={28} />
+            </div>
+            <div>
+              <h3>¿Tienes dudas sobre cómo postular?</h3>
+              <p>
+                El equipo de Fuerza UPT te asesora en la recopilación de documentos,
+                cartas de motivación y trámites para que tu postulación sea exitosa.
+              </p>
+            </div>
           </div>
+          <Link href="/contacto" className={styles.helpBtn}>
+            Solicitar asesoría gratuita
+            <ArrowRight size={16} />
+          </Link>
+        </section>
+
+        {/* Nota legal / institucional */}
+        <div className={styles.disclaimer}>
           <p>
             La información se actualiza periódicamente según convocatorias y oportunidades confirmadas. Te recomendamos revisar los detalles de cada programa para conocer requisitos y fechas importantes.
           </p>
@@ -456,13 +472,16 @@ export function OpportunitiesCatalog({
                     Ver convocatoria oficial <ExternalLink size={14} />
                   </Link>
                 )}
-                <button
-                  className={styles.actionPrimary}
-                  style={{ background: "#10b981", border: "none", cursor: "pointer" }}
-                  onClick={() => alert("Formulario de postulación enviado correctamente.")}
-                >
-                  Postular <ArrowRight size={14} />
-                </button>
+                {selectedOpportunity.applicationUrl && selectedOpportunity.applicationUrl.trim().length > 0 && (
+                  <Link
+                    href={selectedOpportunity.applicationUrl}
+                    target="_blank"
+                    className={styles.actionPrimary}
+                    style={{ background: "#10b981", border: "none", cursor: "pointer" }}
+                  >
+                    Postular <ArrowRight size={14} />
+                  </Link>
+                )}
               </div>
             </div>
           </div>
