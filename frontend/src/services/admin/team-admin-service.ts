@@ -46,8 +46,34 @@ async function multipart(
     body: form,
   });
   if (!response.ok) {
-    const body = await response.json().catch(() => null) as { code?: string; message?: string } | null;
-    throw new ApiClientError(body?.message ?? "No se pudo guardar el integrante.", response.status, body?.code);
+    const body = (await response.json().catch(() => null)) as {
+      code?: string;
+      message?: string;
+      requestId?: string;
+      fieldErrors?: { field: string; message: string }[];
+    } | null;
+
+    let message = body?.message;
+    if (!message) {
+      if (response.status === 400) {
+        message = "El archivo seleccionado no es válido.";
+      } else if (response.status === 413) {
+        message = "La imagen supera el tamaño máximo permitido.";
+      } else if (response.status === 401) {
+        message = "Tu sesión ha expirado.";
+      } else if (response.status === 403) {
+        message = "No tienes permisos para subir imágenes.";
+      } else {
+        message = `Se produjo un error al procesar la imagen.${body?.requestId ? ` Código: ${body.requestId}` : ""}`;
+      }
+    }
+    throw new ApiClientError(
+      message,
+      response.status,
+      body?.code,
+      body?.requestId,
+      body?.fieldErrors,
+    );
   }
   return response.json() as Promise<TeamMemberAdmin>;
 }

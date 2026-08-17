@@ -10,6 +10,8 @@ interface ApiClientOptions extends RequestInit {
 interface ApiErrorBody {
   code?: string;
   message?: string;
+  requestId?: string;
+  fieldErrors?: { field: string; message: string }[];
 }
 
 export class ApiClientError extends Error {
@@ -17,6 +19,8 @@ export class ApiClientError extends Error {
     message: string,
     public readonly status?: number,
     public readonly code?: string,
+    public readonly requestId?: string,
+    public readonly fieldErrors?: { field: string; message: string }[],
   ) {
     super(message);
     this.name = "ApiClientError";
@@ -45,7 +49,7 @@ export async function getCsrfHeaders(): Promise<Record<string, string>> {
   });
 
   if (!response.ok) {
-    throw new ApiClientError("No se pudo inicializar la protección de la solicitud.", response.status);
+    throw new ApiClientError("No se pudo inicializar la protección de la solicitud (CSRF).", response.status);
   }
 
   const csrf = (await response.json()) as { token: string; headerName: string };
@@ -72,10 +76,38 @@ export async function apiClient<T>(path: string, options: ApiClientOptions = {})
 
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as ApiErrorBody | null;
+      let userFriendlyMessage = body?.message;
+
+      if (!userFriendlyMessage || userFriendlyMessage === "Ocurrió un error inesperado.") {
+        if (response.status === 400) {
+          userFriendlyMessage = body?.fieldErrors && body.fieldErrors.length > 0
+            ? `Datos inválidos: ${body.fieldErrors.map(f => `${f.field}: ${f.message}`).join(", ")}`
+            : "Los datos enviados no son válidos. Por favor revise los campos.";
+        } else if (response.status === 401) {
+          userFriendlyMessage = "Su sesión ha expirado o no está autenticado. Por favor inicie sesión nuevamente.";
+        } else if (response.status === 403) {
+          userFriendlyMessage = "Acceso denegado o token de seguridad CSRF inválido. Recargue la página e intente de nuevo.";
+        } else if (response.status === 404) {
+          userFriendlyMessage = "El registro o recurso solicitado no fue encontrado en el servidor.";
+        } else if (response.status === 409) {
+          userFriendlyMessage = "Conflicto de concurrencia: el registro fue modificado por otro usuario. Recargue la página.";
+        } else if (response.status >= 500) {
+          userFriendlyMessage = body?.requestId
+            ? `Error interno del servidor (Ref: ${body.requestId}). Por favor intente más tarde.`
+            : "Error interno del servidor. Por favor intente más tarde.";
+        } else {
+          userFriendlyMessage = `Error en el servidor (HTTP ${response.status}).`;
+        }
+      } else if (response.status >= 500 && body?.requestId) {
+        userFriendlyMessage = `${userFriendlyMessage} (Ref: ${body.requestId})`;
+      }
+
       throw new ApiClientError(
-        body?.message ?? `La API respondió con estado ${response.status}.`,
+        userFriendlyMessage,
         response.status,
         body?.code,
+        body?.requestId,
+        body?.fieldErrors,
       );
     }
 
@@ -89,6 +121,6 @@ export async function apiClient<T>(path: string, options: ApiClientOptions = {})
       throw error;
     }
 
-    throw new ApiClientError("No se pudo conectar con la API configurada.");
+    throw new ApiClientError("No se pudo conectar con el servidor API.");
   }
 }

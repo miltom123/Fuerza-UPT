@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.multipart.MultipartFile;
 import pe.edu.upt.fuerzaupt.common.exception.BusinessException;
 import pe.edu.upt.fuerzaupt.common.exception.ResourceNotFoundException;
@@ -133,14 +134,27 @@ public class SupabaseStorageService {
                         .uri(objectUrl)
                         .header("Authorization", "Bearer " + serviceRoleKey)
                         .header("apikey", serviceRoleKey)
-                        .header("x-upsert", "false")
                         .contentType(MediaType.parseMediaType(detectedType))
                         .body(bytes)
                         .retrieve()
                         .toBodilessEntity();
+            } catch (RestClientResponseException exception) {
+                int status = exception.getStatusCode().value();
+                log.warn("Supabase Storage upload failed: op=UPLOAD bucket={} status={}", bucket, status);
+                if (status == 400) {
+                    throw new BusinessException("El archivo seleccionado no es válido.");
+                } else if (status == 413 || status == 422) {
+                    throw new BusinessException("La imagen supera el tamaño máximo permitido.");
+                } else if (status == 401 || status == 403) {
+                    throw new BusinessException("Error de autenticación con el servicio de almacenamiento.");
+                } else if (status == 404) {
+                    throw new BusinessException("El contenedor de almacenamiento '" + bucket + "' no fue encontrado o no está configurado.");
+                } else {
+                    throw new BusinessException("No se pudo almacenar la imagen en el proveedor de almacenamiento.");
+                }
             } catch (RuntimeException exception) {
-                log.warn("Supabase Storage upload failed: {}", exception.getMessage());
-                throw new BusinessException("No se pudo subir el archivo al almacenamiento.");
+                log.warn("Supabase Storage upload error: op=UPLOAD bucket={} error={}", bucket, exception.getMessage());
+                throw new BusinessException("No se pudo almacenar la imagen. Inténtalo nuevamente.");
             }
         }
 
@@ -255,9 +269,12 @@ public class SupabaseStorageService {
     }
 
     private byte[] read(MultipartFile file, long maxFileSize) {
-        if (file.isEmpty()) throw new BusinessException("El archivo esta vacio.");
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("El archivo seleccionado está vacío.");
+        }
         if (file.getSize() > maxFileSize) {
-            throw new BusinessException("El archivo supera el limite permitido de " + (maxFileSize / 1024 / 1024) + " MB.");
+            long maxMb = maxFileSize / (1024 * 1024);
+            throw new BusinessException("La imagen supera el tamaño máximo permitido de " + maxMb + " MB.");
         }
         try {
             return file.getBytes();
@@ -274,7 +291,7 @@ public class SupabaseStorageService {
         else if (ascii(bytes, 0, "RIFF") && ascii(bytes, 8, "WEBP")) type = "image/webp";
         else if (ascii(bytes, 0, "%PDF-")) type = "application/pdf";
         if (type == null || !allowedTypes.contains(type)) {
-            throw new BusinessException("La firma real del archivo no corresponde a un tipo permitido.");
+            throw new BusinessException("El formato del archivo no está permitido. Formatos admitidos: JPG, PNG, WEBP.");
         }
         return type;
     }
@@ -312,11 +329,5 @@ public class SupabaseStorageService {
                 asset.getContentType(), asset.getSizeBytes(), asset.getBucketName(),
                 asset.getUrl(), asset.getPrivateAsset(), asset.getCreatedAt()
         );
-    }
-
-    private void ensureConfigured() {
-        if (supabaseUrl.isBlank() || serviceRoleKey.isBlank()) {
-            throw new BusinessException("Supabase Storage todavia no tiene una service_role configurada.");
-        }
     }
 }

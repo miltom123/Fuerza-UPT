@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.upt.fuerzaupt.admin.service.AuditLogService;
 import pe.edu.upt.fuerzaupt.common.exception.BusinessException;
 import pe.edu.upt.fuerzaupt.common.exception.ResourceNotFoundException;
 import pe.edu.upt.fuerzaupt.common.web.PageResponse;
@@ -21,14 +20,22 @@ import pe.edu.upt.fuerzaupt.representation.repository.RepresentationRepository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class RepresentationAdminService {
 
+    private static final Set<String> VALID_PROGRESS_VALUES = Set.of(
+            "PRESENTADO", "EN_EVALUACION", "APROBADO", "EN_SEGUIMIENTO", "LOGRADO", "CERRADO"
+    );
+
+    private static final Set<String> VALID_CONTENT_STATUS_VALUES = Set.of(
+            "DRAFT", "PUBLISHED", "ARCHIVED"
+    );
+
     private final RepresentationRepository representationRepository;
-    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     public PageResponse<RepresentationAdminResponse> searchItems(int page, int size, String search, String status) {
@@ -54,24 +61,33 @@ public class RepresentationAdminService {
     @Transactional
     @CacheEvict(value = "home", allEntries = true)
     public RepresentationAdminResponse createItem(RepresentationAdminRequest request) {
+        validateRequiredFields(
+                request.title(),
+                request.summary(),
+                request.beneficiaryArea(),
+                request.proposalOrManagement()
+        );
+
         String slug = generateSlug(request.slug(), request.title());
+        String status = validateAndNormalizeContentStatus(request.contentStatus());
+        String progress = validateAndNormalizeProgress(request.progress());
 
         RepresentationItem item = new RepresentationItem();
         item.setId(UUID.randomUUID());
-        item.setTitle(request.title());
+        item.setTitle(request.title().trim());
         item.setSlug(slug);
-        item.setSummary(request.summary());
+        item.setSummary(request.summary().trim());
         item.setCoverImageUrl(request.coverImageUrl());
-        item.setContentStatus(request.contentStatus() != null ? request.contentStatus() : "DRAFT");
+        item.setContentStatus(status);
         item.setFeatured(Boolean.TRUE.equals(request.featured()));
-        item.setDisplayOrder(request.displayOrder() != null ? request.displayOrder() : 0);
-        item.setKind(request.kind() != null ? request.kind() : "LOGRO");
-        item.setProgress(request.progress() != null ? request.progress() : "PRESENTADO");
-        item.setProgressPercentage(request.progressPercentage() != null ? request.progressPercentage() : 0);
-        item.setImpactLevel(request.impactLevel() != null ? request.impactLevel() : "MEDIO");
-        item.setBeneficiaryArea(request.beneficiaryArea());
+        item.setDisplayOrder(request.displayOrder() != null ? Math.max(0, request.displayOrder()) : 0);
+        item.setKind(request.kind() != null && !request.kind().isBlank() ? request.kind().trim() : "LOGRO");
+        item.setProgress(progress);
+        item.setProgressPercentage(request.progressPercentage() != null ? Math.min(100, Math.max(0, request.progressPercentage())) : 0);
+        item.setImpactLevel(request.impactLevel() != null ? request.impactLevel().trim() : "MEDIO");
+        item.setBeneficiaryArea(request.beneficiaryArea().trim());
         item.setIdentifiedProblem(request.identifiedProblem());
-        item.setProposalOrManagement(request.proposalOrManagement());
+        item.setProposalOrManagement(request.proposalOrManagement().trim());
         item.setResult(request.result());
 
         if ("PUBLISHED".equalsIgnoreCase(item.getContentStatus())) {
@@ -81,8 +97,6 @@ public class RepresentationAdminService {
         updateActionsAndEvidence(item, request.actions(), request.evidence());
 
         RepresentationItem saved = representationRepository.save(item);
-        auditLogService.record(null, "CREATE", "REPRESENTATION", saved.getId(), null, saved.getTitle(), null);
-
         return mapToResponse(saved);
     }
 
@@ -92,38 +106,60 @@ public class RepresentationAdminService {
         RepresentationItem item = representationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ítem no encontrado: " + id));
 
-        item.setTitle(request.title());
-
-        if (request.slug() != null && !request.slug().isBlank()) {
-            item.setSlug(generateSlug(request.slug(), request.title()));
+        if (request.title() != null) {
+            if (request.title().isBlank()) {
+                throw new BusinessException("El título del registro no puede estar vacío.");
+            }
+            item.setTitle(request.title().trim());
         }
 
-        item.setSummary(request.summary());
+        if (request.slug() != null && !request.slug().isBlank()) {
+            item.setSlug(generateSlug(request.slug(), item.getTitle()));
+        }
+
+        if (request.summary() != null) {
+            if (request.summary().isBlank()) {
+                throw new BusinessException("El resumen del registro no puede estar vacío.");
+            }
+            item.setSummary(request.summary().trim());
+        }
+
+        if (request.beneficiaryArea() != null) {
+            if (request.beneficiaryArea().isBlank()) {
+                throw new BusinessException("El área beneficiaria no puede estar vacía.");
+            }
+            item.setBeneficiaryArea(request.beneficiaryArea().trim());
+        }
+
+        if (request.proposalOrManagement() != null) {
+            if (request.proposalOrManagement().isBlank()) {
+                throw new BusinessException("El detalle de la propuesta o gestión no puede estar vacío.");
+            }
+            item.setProposalOrManagement(request.proposalOrManagement().trim());
+        }
+
         item.setCoverImageUrl(request.coverImageUrl());
 
         if (request.contentStatus() != null) {
-            if ("PUBLISHED".equalsIgnoreCase(request.contentStatus()) && item.getPublishedAt() == null) {
+            String status = validateAndNormalizeContentStatus(request.contentStatus());
+            if ("PUBLISHED".equalsIgnoreCase(status) && item.getPublishedAt() == null) {
                 item.setPublishedAt(Instant.now());
             }
-            item.setContentStatus(request.contentStatus());
+            item.setContentStatus(status);
         }
 
         if (request.featured() != null) item.setFeatured(request.featured());
-        if (request.displayOrder() != null) item.setDisplayOrder(request.displayOrder());
-        if (request.kind() != null) item.setKind(request.kind());
-        if (request.progress() != null) item.setProgress(request.progress());
-        if (request.progressPercentage() != null) item.setProgressPercentage(request.progressPercentage());
-        if (request.impactLevel() != null) item.setImpactLevel(request.impactLevel());
-        if (request.beneficiaryArea() != null) item.setBeneficiaryArea(request.beneficiaryArea());
+        if (request.displayOrder() != null) item.setDisplayOrder(Math.max(0, request.displayOrder()));
+        if (request.kind() != null && !request.kind().isBlank()) item.setKind(request.kind().trim());
+        if (request.progress() != null) item.setProgress(validateAndNormalizeProgress(request.progress()));
+        if (request.progressPercentage() != null) item.setProgressPercentage(Math.min(100, Math.max(0, request.progressPercentage())));
+        if (request.impactLevel() != null) item.setImpactLevel(request.impactLevel().trim());
         if (request.identifiedProblem() != null) item.setIdentifiedProblem(request.identifiedProblem());
-        if (request.proposalOrManagement() != null) item.setProposalOrManagement(request.proposalOrManagement());
         if (request.result() != null) item.setResult(request.result());
 
         updateActionsAndEvidence(item, request.actions(), request.evidence());
 
         RepresentationItem updated = representationRepository.save(item);
-        auditLogService.record(null, "UPDATE", "REPRESENTATION", updated.getId(), null, updated.getTitle(), null);
-
         return mapToResponse(updated);
     }
 
@@ -137,14 +173,13 @@ public class RepresentationAdminService {
             throw new BusinessException("El registro ha sido modificado por otro usuario. Por favor recargue la página.");
         }
 
-        item.setContentStatus(newStatus);
-        if ("PUBLISHED".equalsIgnoreCase(newStatus) && item.getPublishedAt() == null) {
+        String status = validateAndNormalizeContentStatus(newStatus);
+        item.setContentStatus(status);
+        if ("PUBLISHED".equalsIgnoreCase(status) && item.getPublishedAt() == null) {
             item.setPublishedAt(Instant.now());
         }
 
         RepresentationItem updated = representationRepository.save(item);
-        auditLogService.record(null, "UPDATE_STATUS", "REPRESENTATION", updated.getId(), null, newStatus, null);
-
         return mapToResponse(updated);
     }
 
@@ -156,7 +191,6 @@ public class RepresentationAdminService {
 
         item.setContentStatus("ARCHIVED");
         RepresentationItem saved = representationRepository.save(item);
-        auditLogService.record(null, "ARCHIVE", "REPRESENTATION", id, null, "ARCHIVED", null);
         return mapToResponse(saved);
     }
 
@@ -171,7 +205,6 @@ public class RepresentationAdminService {
 
         RepresentationAdminResponse response = mapToResponse(item);
         representationRepository.delete(item);
-        auditLogService.record(null, "DELETE_PERMANENT", "REPRESENTATION", id, null, "DELETED", null);
         return response;
     }
 
@@ -206,6 +239,43 @@ public class RepresentationAdminService {
                     }
                 }
             }
+        }
+    }
+
+    private String validateAndNormalizeProgress(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "PRESENTADO";
+        }
+        String normalized = raw.trim().toUpperCase();
+        if (!VALID_PROGRESS_VALUES.contains(normalized)) {
+            throw new BusinessException("El estado de avance '" + raw + "' no es válido. Valores admitidos: PRESENTADO, EN_EVALUACION, APROBADO, EN_SEGUIMIENTO, LOGRADO, CERRADO.");
+        }
+        return normalized;
+    }
+
+    private String validateAndNormalizeContentStatus(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "DRAFT";
+        }
+        String normalized = raw.trim().toUpperCase();
+        if (!VALID_CONTENT_STATUS_VALUES.contains(normalized)) {
+            throw new BusinessException("El estado editorial '" + raw + "' no es válido. Valores admitidos: DRAFT, PUBLISHED, ARCHIVED.");
+        }
+        return normalized;
+    }
+
+    private void validateRequiredFields(String title, String summary, String beneficiaryArea, String proposalOrManagement) {
+        if (title == null || title.isBlank()) {
+            throw new BusinessException("El título del registro es obligatorio.");
+        }
+        if (summary == null || summary.isBlank()) {
+            throw new BusinessException("El resumen del registro es obligatorio.");
+        }
+        if (beneficiaryArea == null || beneficiaryArea.isBlank()) {
+            throw new BusinessException("El área beneficiaria es obligatoria.");
+        }
+        if (proposalOrManagement == null || proposalOrManagement.isBlank()) {
+            throw new BusinessException("El detalle de la propuesta o gestión es obligatorio.");
         }
     }
 
