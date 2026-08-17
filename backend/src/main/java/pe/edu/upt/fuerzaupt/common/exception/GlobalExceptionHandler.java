@@ -157,6 +157,48 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(
+            org.springframework.dao.DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Data integrity violation on {} {}: {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+        Throwable cause = ex.getCause();
+        if (cause instanceof org.hibernate.exception.ConstraintViolationException cve) {
+            String sqlState = cve.getSQLState();
+            // SQLState 23505: unique_violation (ej. clave única o slug duplicado provocado por datos)
+            if ("23505".equals(sqlState)) {
+                ApiErrorResponse response = new ApiErrorResponse(
+                        HttpStatus.CONFLICT.value(),
+                        "RESOURCE_CONFLICT",
+                        "El registro o identificador ingresado ya existe.",
+                        request.getRequestURI()
+                );
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+            }
+            // SQLState 23514: check_violation, 23502: not_null_violation, 23503: foreign_key_violation
+            if ("23514".equals(sqlState) || "23502".equals(sqlState) || "23503".equals(sqlState)) {
+                ApiErrorResponse response = new ApiErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "DATA_INTEGRITY_VIOLATION",
+                        "Los datos enviados no cumplen con las restricciones de validación del sistema.",
+                        request.getRequestURI()
+                );
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        // Violaciones no reconocidas o internas conservan respuesta 500 segura
+        ApiErrorResponse response = new ApiErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "INTERNAL_ERROR",
+                "Ocurrió un error inesperado al procesar la integridad de los datos.",
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         log.error("Unhandled API error on {} {}", request.getMethod(), request.getRequestURI(), ex);
