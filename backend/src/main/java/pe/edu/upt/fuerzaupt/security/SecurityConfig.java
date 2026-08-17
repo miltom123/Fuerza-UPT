@@ -60,6 +60,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public org.springframework.web.filter.ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new org.springframework.web.filter.ForwardedHeaderFilter();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
             SecurityContextRepository repository,

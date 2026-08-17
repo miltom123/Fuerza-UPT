@@ -96,9 +96,13 @@ public class GoogleOAuth2AuthenticationSuccessHandler implements AuthenticationS
             String targetPath = isAdmin ? (successPath.startsWith("/admin") ? "/administracion" : successPath) : "/unete#registro";
             String targetUrl = buildTargetUrl(frontendOrigin, targetPath);
             response.sendRedirect(targetUrl);
+        } catch (OAuth2AuthenticationException ex) {
+            log.warn("Rechazo de validación OAuth2 de Google: {}", ex.getMessage());
+            String err = ex.getError() != null ? ex.getError().getErrorCode() : "oauth_error";
+            response.sendRedirect(buildTargetUrl(frontendOrigin, "/unete?oauthError=" + err + "#registro"));
         } catch (Exception ex) {
             log.error("Fallo al procesar autenticación OAuth2 de Google: {}", ex.getMessage(), ex);
-            response.sendRedirect(buildTargetUrl(frontendOrigin, "/unete?oauthError=true#registro"));
+            response.sendRedirect(buildTargetUrl(frontendOrigin, "/unete?oauthError=internal_error#registro"));
         }
 
     }
