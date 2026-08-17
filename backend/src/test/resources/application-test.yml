@@ -18,5 +18,8 @@ spring:
 app:
   admin:
     bootstrap-enabled: false
+  mail:
+    provider: disabled
   privacy:
     hmac-secret: test-secret-with-at-least-thirty-two-characters-long
+

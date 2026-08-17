@@ -15,5 +15,7 @@ public record TeamApplicationEmailModel(
     String formattedDate,
     String footerDate,
     String adminUrl,
-    String replySubject
+    String replySubject,
+    String logoUrl
 ) {}
+

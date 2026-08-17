@@ -31,7 +31,7 @@ spring:
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
     port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:no-reply@fuerzaupt.pe}
+    username: ${SPRING_MAIL_USERNAME:}
     password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
@@ -43,6 +43,7 @@ spring:
           starttls:
             enable: true
             required: true
+
 
 
   security:
@@ -138,7 +139,13 @@ app:
     success-path: ${FRONTEND_OAUTH_SUCCESS_PATH:/admin}
     error-path: ${FRONTEND_OAUTH_ERROR_PATH:/login?oauthError=true}
   notification:
-    team-emails: ${TEAM_NOTIFICATION_EMAILS:equipo@fuerzaupt.pe}
+    team-emails: ${TEAM_NOTIFICATION_EMAILS:}
     team-fallback-enabled: ${APP_NOTIFICATION_TEAM_FALLBACK_ENABLED:false}
+  mail:
+    provider: ${APP_MAIL_PROVIDER:smtp}
+    from: ${APP_MAIL_FROM:}
+    logo-url: ${APP_MAIL_LOGO_URL:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
 
 

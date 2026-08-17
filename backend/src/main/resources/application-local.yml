@@ -17,3 +17,8 @@ management:
 logging:
   level:
     pe.edu.upt.fuerzaupt: INFO
+
+app:
+  mail:
+    provider: ${APP_MAIL_PROVIDER:disabled}
+

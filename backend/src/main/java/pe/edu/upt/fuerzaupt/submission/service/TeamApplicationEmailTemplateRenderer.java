@@ -32,6 +32,7 @@ public class TeamApplicationEmailTemplateRenderer {
         String safeFooterDate = escape(model.footerDate());
         String safeAdminUrl = escape(model.adminUrl());
         String safeReplySubject = escape(model.replySubject());
+        String safeLogoUrl = escape(model.logoUrl());
 
         return template
                 .replace("{{FULL_NAME}}", safeFullName)
@@ -44,7 +45,8 @@ public class TeamApplicationEmailTemplateRenderer {
                 .replace("{{DATE}}", safeFormattedDate)
                 .replace("{{FOOTER_DATE}}", safeFooterDate)
                 .replace("{{ADMIN_URL}}", safeAdminUrl)
-                .replace("{{REPLY_SUBJECT}}", safeReplySubject);
+                .replace("{{REPLY_SUBJECT}}", safeReplySubject)
+                .replace("{{LOGO_URL}}", safeLogoUrl);
     }
 
     private synchronized String getTemplate() {
