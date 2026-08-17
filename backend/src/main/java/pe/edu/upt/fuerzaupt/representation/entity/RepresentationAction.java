@@ -23,4 +23,11 @@ public class RepresentationAction {
 
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder = 0;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+    }
 }

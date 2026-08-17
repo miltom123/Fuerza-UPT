@@ -278,10 +278,11 @@ export function RepresentationEditorModal({
                     className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800"
                   >
                     <option value="PRESENTADO">PRESENTADO</option>
-                    <option value="EN_DIALOGO">EN DIÁLOGO</option>
+                    <option value="EN_EVALUACION">EN EVALUACIÓN</option>
                     <option value="APROBADO">APROBADO</option>
-                    <option value="EN_EJECUCION">EN EJECUCIÓN</option>
-                    <option value="CUMPLIDO">CUMPLIDO</option>
+                    <option value="EN_SEGUIMIENTO">EN SEGUIMIENTO</option>
+                    <option value="LOGRADO">LOGRADO</option>
+                    <option value="CERRADO">CERRADO</option>
                   </select>
                 </div>
 
@@ -305,13 +306,29 @@ export function RepresentationEditorModal({
             {/* Summary */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Resumen / Breve descripción
+                Resumen / Breve descripción <span className="text-rose-500">*</span>
               </label>
               <textarea
                 rows={2}
+                required
                 value={formData.summary}
                 onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                 placeholder="Breve resumen visible en las tarjetas públicas..."
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-fuerza-blue"
+              />
+            </div>
+
+            {/* Beneficiary Area */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Área Beneficiaria <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.beneficiaryArea}
+                onChange={(e) => setFormData({ ...formData, beneficiaryArea: e.target.value })}
+                placeholder="Ej. Comunidad UPT, Facultad de Ingeniería..."
                 className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-fuerza-blue"
               />
             </div>
@@ -333,10 +350,11 @@ export function RepresentationEditorModal({
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Propuesta / Gestión realizada
+                  Propuesta / Gestión realizada <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   rows={2}
+                  required
                   value={formData.proposalOrManagement}
                   onChange={(e) =>
                     setFormData({ ...formData, proposalOrManagement: e.target.value })

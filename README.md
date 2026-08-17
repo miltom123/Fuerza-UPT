@@ -50,6 +50,13 @@ El frontend usa `http://localhost:3000`. El backend usa `SERVER_PORT`; si no se 
 - Swagger esta desactivado por defecto y siempre desactivado en produccion.
 - La clave `service_role` de Supabase solo pertenece al backend.
 
+### Almacenamiento (Supabase Storage)
+
+El backend utiliza tres buckets canónicos en Supabase:
+- `team-members`: **Público** (fotografías de integrantes del equipo).
+- `public-content`: **Público** (imágenes generales, banners y multimedia de contenido).
+- `representation-evidence`: **Privado** (documentos y evidencias de representación estudiantil con URL firmada).
+
 Las credenciales reales nunca deben entrar al repositorio, al frontend ni a un ZIP. Si una credencial fue compartida fuera del entorno privado, debe rotarse antes de desplegar.
 
 ## Validacion
