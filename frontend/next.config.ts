@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
+      {
+        source: "/oauth2/:path*",
+        destination: `${backendUrl}/oauth2/:path*`,
+      },
+      {
+        source: "/login/oauth2/:path*",
+        destination: `${backendUrl}/login/oauth2/:path*`,
+      },
     ];
   },
   async redirects() {

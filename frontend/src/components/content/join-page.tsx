@@ -7,6 +7,7 @@ import { authService } from "@/services/auth-service";
 import { apiClient } from "@/services/api-client";
 
 import {
+  AlertCircle,
   ArrowRight,
   Calendar,
   CheckCircle2,
@@ -116,8 +117,26 @@ export function JoinPageContent() {
   const [selectedInterest, setSelectedInterest] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>("IDLE");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for oauthError in URL query parameters
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get("oauthError");
+      if (err) {
+        if (err === "invalid_domain") {
+          setOauthError("Tu cuenta de Google no pertenece a un correo institucional autorizado. Utiliza tu correo universitario (@upt.pe).");
+        } else if (err === "access_denied") {
+          setOauthError("No se completó el acceso con Google. Inténtalo de nuevo para identificarte.");
+        } else if (err === "unverified_email") {
+          setOauthError("El correo electrónico de tu cuenta Google no se encuentra verificado.");
+        } else {
+          setOauthError("No pudimos validar tu cuenta institucional en este momento. Inténtalo nuevamente.");
+        }
+      }
+    }
+
     authService
       .getCurrentUser()
       .then((session) => {
@@ -139,18 +158,13 @@ export function JoinPageContent() {
   }
 
   function handleGoogleLogin() {
-    // Clear preloaded mock data
+    setOauthError(null);
     setFullName("");
     setEmail("");
     setIsIdentified(false);
 
-    // Initiate real Google OAuth Authorization flow
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL
-      ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, "")
-      : "http://localhost:8080";
-
-    window.location.href = `${backendUrl}/oauth2/authorization/google`;
-
+    // Initiate real Google OAuth Authorization flow via Next.js proxy
+    window.location.href = "/oauth2/authorization/google";
   }
 
   function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -326,6 +340,16 @@ export function JoinPageContent() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
+                  {/* OAuth Error Notification Banner */}
+                  {oauthError && (
+                    <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+                      <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+                      <div className="flex-1">
+                        <p className="font-semibold">{oauthError}</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Google Auth Institutional Login */}
                   <button
                     type="button"
