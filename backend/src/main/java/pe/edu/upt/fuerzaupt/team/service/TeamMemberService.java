@@ -30,9 +30,12 @@ import pe.edu.upt.fuerzaupt.team.repository.TeamMemberRepository;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -311,22 +314,43 @@ public class TeamMemberService {
     }
 
     private void replaceSocialLinks(TeamMember member, String instagramUrl, String linkedinUrl, String facebookUrl, String twitterUrl) {
-        member.getSocialLinks().clear();
-        insertSocialLink(member, "INSTAGRAM", instagramUrl, 0);
-        insertSocialLink(member, "LINKEDIN", linkedinUrl, 1);
-        insertSocialLink(member, "FACEBOOK", facebookUrl, 2);
-        insertSocialLink(member, "TWITTER", twitterUrl, 3);
-    }
+        Map<String, String> targetLinks = new LinkedHashMap<>();
+        if (optional(instagramUrl) != null) targetLinks.put("INSTAGRAM", optional(instagramUrl));
+        if (optional(linkedinUrl) != null) targetLinks.put("LINKEDIN", optional(linkedinUrl));
+        if (optional(facebookUrl) != null) targetLinks.put("FACEBOOK", optional(facebookUrl));
+        if (optional(twitterUrl) != null) targetLinks.put("TWITTER", optional(twitterUrl));
 
-    private void insertSocialLink(TeamMember member, String platform, String url, int order) {
-        String cleanUrl = optional(url);
-        if (cleanUrl == null) return;
-        TeamSocialLink link = new TeamSocialLink();
-        link.setId(UUID.randomUUID());
-        link.setPlatform(platform);
-        link.setUrl(cleanUrl);
-        link.setDisplayOrder(order);
-        member.addSocialLink(link);
+        if (member.getSocialLinks() == null) {
+            member.setSocialLinks(new ArrayList<>());
+        }
+
+        // 1. Eliminar enlaces que ya no estan presentes en la solicitud
+        member.getSocialLinks().removeIf(link -> !targetLinks.containsKey(link.getPlatform()));
+
+        // 2. Actualizar existentes o insertar nuevos sin provocar duplicados
+        int order = 0;
+        for (Map.Entry<String, String> entry : targetLinks.entrySet()) {
+            String platform = entry.getKey();
+            String url = entry.getValue();
+            int currentOrder = order++;
+
+            TeamSocialLink existing = member.getSocialLinks().stream()
+                    .filter(link -> link.getPlatform().equalsIgnoreCase(platform))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existing != null) {
+                existing.setUrl(url);
+                existing.setDisplayOrder(currentOrder);
+            } else {
+                TeamSocialLink link = new TeamSocialLink();
+                link.setId(UUID.randomUUID());
+                link.setPlatform(platform);
+                link.setUrl(url);
+                link.setDisplayOrder(currentOrder);
+                member.addSocialLink(link);
+            }
+        }
     }
 
     private void validateCompleteIfPublished(TeamMemberAdminResponse member) {
