@@ -15,4 +15,5 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: WARN
+    pe.edu.upt.fuerzaupt.email.sender: INFO
 

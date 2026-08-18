@@ -8,6 +8,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import pe.edu.upt.fuerzaupt.email.sender.NotificationEmailSender;
 import pe.edu.upt.fuerzaupt.submission.dto.TeamApplicationEmailModel;
 
 import java.time.ZoneId;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 @Service
 public class EmailNotificationService {
 
+    private final NotificationEmailSender gmailSender;
     private final JavaMailSender mailSender;
     private final TeamApplicationEmailTemplateRenderer templateRenderer;
 
@@ -33,16 +35,18 @@ public class EmailNotificationService {
     @Value("${app.notification.team-fallback-enabled:false}")
     private boolean teamFallbackEnabled;
 
-    @Value("${spring.mail.username:no-reply@fuerzaupt.pe}")
+    @Value("${app.gmail-mail.sender:somos.fuerzaupt@gmail.com}")
     private String mailFrom;
 
     @Value("${app.frontend.origin:http://localhost:3000}")
     private String frontendOrigin;
 
     public EmailNotificationService(
+            NotificationEmailSender gmailSender,
             ObjectProvider<JavaMailSender> mailSenderProvider,
             TeamApplicationEmailTemplateRenderer templateRenderer
     ) {
+        this.gmailSender = gmailSender;
         this.mailSender = mailSenderProvider.getIfAvailable();
         this.templateRenderer = templateRenderer;
     }
@@ -71,11 +75,6 @@ public class EmailNotificationService {
             return;
         }
 
-        if (mailSender == null) {
-            log.error("JavaMailSender no está disponible. No se puede enviar correo de postulación: applicationId={}", applicationId);
-            return;
-        }
-
         ZoneId peruZone = ZoneId.of("America/Lima");
         ZonedDateTime now = ZonedDateTime.now(peruZone);
         String formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy, hh:mma").format(now).toLowerCase();
@@ -84,7 +83,7 @@ public class EmailNotificationService {
         ParsedMotivation parsed = parseMotivation(motivation);
         String adminUrl = frontendOrigin + "/administracion/unete";
         String replySubject = "Respuesta a tu postulación en Fuerza UPT";
-        String subject = "🚀 Nueva postulación recibida: " + (fullName != null ? fullName.trim() : "Postulante");
+        String subject = "\uD83D\uDE80 Nueva postulación recibida: " + (fullName != null ? fullName.trim() : "Postulante");
 
         TeamApplicationEmailModel model = new TeamApplicationEmailModel(
                 applicationId,
@@ -107,33 +106,39 @@ public class EmailNotificationService {
         int sentCount = 0;
         for (String recipient : recipients) {
             try {
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                MimeMessage message = buildMimeMessage(recipient, subject, htmlContent, applicantEmail);
 
-                helper.setTo(recipient);
-                helper.setSubject(subject);
-                helper.setText(htmlContent, true);
-
-                if (mailFrom != null && !mailFrom.isBlank()) {
-                    helper.setFrom(mailFrom);
-                }
-                if (applicantEmail != null && !applicantEmail.isBlank()) {
-                    helper.setReplyTo(applicantEmail.trim());
-                }
-
-                ClassPathResource logoRes = new ClassPathResource("mail/fuerza-upt-logo.png");
-                if (logoRes.exists()) {
-                    helper.addInline("fuerzaUptLogo", logoRes, "image/png");
-                }
-
-                mailSender.send(message);
+                gmailSender.send(message);
                 sentCount++;
             } catch (Exception ex) {
-                log.error("Fallo el envío de notificación por SMTP para applicationId={}: {}", applicationId, ex.getMessage());
+                log.error("Fallo el envío de notificación para applicationId={}, recipient={}: {}",
+                        applicationId, recipient, ex.getMessage());
             }
         }
 
-        log.info("Team application notification sent via SMTP: applicationId={}, recipientCount={}", applicationId, sentCount);
+        log.info("Team application notification sent via GMAIL_API: applicationId={}, recipientCount={}", applicationId, sentCount);
+    }
+
+    private MimeMessage buildMimeMessage(String recipient, String subject, String htmlContent, String replyTo) throws Exception {
+        jakarta.mail.Session session = jakarta.mail.Session.getInstance(new java.util.Properties());
+        MimeMessage message = new MimeMessage(session);
+
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(recipient);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+        helper.setFrom(mailFrom);
+
+        if (replyTo != null && !replyTo.isBlank()) {
+            helper.setReplyTo(replyTo.trim());
+        }
+
+        ClassPathResource logoRes = new ClassPathResource("mail/fuerza-upt-logo.png");
+        if (logoRes.exists()) {
+            helper.addInline("fuerzaUptLogo", logoRes, "image/png");
+        }
+
+        return message;
     }
 
     private ParsedMotivation parseMotivation(String motivation) {
