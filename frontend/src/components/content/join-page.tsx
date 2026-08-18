@@ -67,7 +67,7 @@ const facultiesWithCareers: Record<string, string[]> = {
     "Ingeniería Electrónica",
   ],
   "Facultad de Derecho": ["Derecho"],
-  "Facultad de Arquitectura y Urbanismo": ["Arquitectura"],
+  "Facultad de Arquitectura y Urbanismo": ["Arquitectura", "Urbanismo"],
   "Facultad de Ciencias Empresariales": [
     "Ingeniería Comercial",
     "Administración de Empresas",
@@ -92,6 +92,8 @@ const semesters = [
   "8vo Ciclo",
   "9no Ciclo",
   "10mo Ciclo",
+  "11vo Ciclo",
+  "12vo Ciclo",
 ];
 
 const interestsOptions = [
