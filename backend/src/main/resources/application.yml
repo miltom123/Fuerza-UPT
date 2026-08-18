@@ -140,5 +140,11 @@ app:
   notification:
     team-emails: ${TEAM_NOTIFICATION_EMAILS:equipo@fuerzaupt.pe}
     team-fallback-enabled: ${APP_NOTIFICATION_TEAM_FALLBACK_ENABLED:false}
+  gmail-mail:
+    provider: ${GMAIL_MAIL_PROVIDER:gmail-api}
+    client-id: ${GMAIL_MAIL_CLIENT_ID:}
+    client-secret: ${GMAIL_MAIL_CLIENT_SECRET:}
+    refresh-token: ${GMAIL_MAIL_REFRESH_TOKEN:}
+    sender: ${GMAIL_MAIL_SENDER:somos.fuerzaupt@gmail.com}
 
 
